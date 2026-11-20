@@ -56,7 +56,7 @@ The following C500 cases use the nominal batch, head count and lengths from the 
 
 ![Effective throughput on C500 for the dense baseline, the default kernel and native prepacked FlashMLA at batch 64 and 128](../figures/flashmla-maca.png)
 
-Effective TFLOP/s counts the score and value products as `2 × B × H × N × (576 + 512)` operations, following the AMD TileLang example. Each point divides that count by the median full-call wall time. Packing and scheduling metadata for the native paged series are prepared beforehand.
+Effective TFLOP/s counts the score and value products as `2 × B × H × N × (576 + 512)` operations, following the AMD TileLang example. Each bar divides that count by the median full-call wall time. Packing and scheduling metadata for the native paged series are prepared beforehand.
 
 | Batch | KV | Default head tile / splits | C500 wall (µs) | Dense baseline wall (µs) | Dense speedup | Native paged FlashMLA wall (µs) |
 |---:|---:|---:|---:|---:|---:|---:|
