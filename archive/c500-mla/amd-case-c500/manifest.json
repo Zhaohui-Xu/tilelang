@@ -1,0 +1,174 @@
+{
+  "base_dev": "c7a3392",
+  "date": "2026-11-20",
+  "device": "C500, 50%, 32000 MiB",
+  "baseline": "tile-ai/tilelang-metax 90d49f353ec88bd0d346474f143003d865dd3b79",
+  "compiler": "tilelang-metax f549117c",
+  "torch": "2.8.0+metax3.7.1.3",
+  "sha256": {
+    "example_mla_decode_maca.py": "dd072430818b62e4da06a0aab801cafd0ac496c94180dc50369709fa5e980830",
+    "benchmark_mla_decode_maca.py": "581b116390daf1eadf31c0cf59be044cedcbba76c4d0ab88a059f0a75761dfb3",
+    "measure.py": "b4108ae053d74e05fd02633cdea3a49116f3e7f05417c4fef1801b6d65a00bed",
+    "wide_candidate.py": "7236b8f97dc7bea1394adbb6330e1f2d6e9974b719b1da51ee9c3a4e215624b9",
+    "wide_bench.py": "ad8359a5df6bcf62756d48e18950d35b1565e4356a60a277aef0822ca9e746e2",
+    "upstream_example.py": "558c56f65c0c8376f05b1bca785e995123a53162c9fbd38c4366915853265dc3",
+    "batch_suite.py": "5227a011c9787940e083767aa6581d0d46b41083960047e66a9cb67fcf8091a2",
+    "confirm.py": "b0b05ca885dd395f179300403e18c155ffac6e841557d09ba9866774c99a9372"
+  },
+  "commands": [
+    "python batch_suite.py batchperf",
+    "python benchmark_mla_decode_maca.py --seeds 2 --check-only --batch-size B --heads H --kv-length N --splits S",
+    "python measure.py amd",
+    "python measure.py small",
+    "python wide_bench.py",
+    "python confirm.py",
+    "python release_check.py",
+    "python crossover.py",
+    "python default_pairs.py",
+    "python regression.py",
+    "python transition.py",
+    "python adopt_check.py"
+  ],
+  "wide_smoke_shapes": [
+    [
+      1,
+      16,
+      2049,
+      64
+    ],
+    [
+      2,
+      128,
+      33,
+      1
+    ],
+    [
+      2,
+      128,
+      2049,
+      2
+    ],
+    [
+      2,
+      128,
+      2049,
+      8
+    ],
+    [
+      2,
+      128,
+      2049,
+      32
+    ],
+    [
+      2,
+      128,
+      2049,
+      64
+    ],
+    [
+      2,
+      128,
+      8192,
+      128
+    ]
+  ],
+  "stage_sources": {
+    "adopt_check.py": "67ab57a3c9486585609ae8867b27a1ba792f665ecf57db1cc7dcfd8268619481",
+    "confirm.py": "b0b05ca885dd395f179300403e18c155ffac6e841557d09ba9866774c99a9372",
+    "crossover.py": "f457cbdcc0f718ed310adc668cf39c17db6458781b31c03e0f8dd89c8b0bb70b",
+    "default_pairs.py": "9a271ee34a0250e406d0bfbb076e4f1eccd9fac97eaae337056ecb3d4f3bb667",
+    "integrated-source/benchmark_mla_decode_maca.py": "162e986d067a5d039136ced65695371dc3d4ad1cdcadb03067d2ae5e534a0ed2",
+    "integrated-source/example_mla_decode_maca.py": "c4c3a196c9e1fea5f7ffe3b222d90ef55e3764b3690cdd57565dbdaf65e2ee85",
+    "integrated-source/release_check.py": "8f73b4c1fd21022e36b0941812c1efd75fbf6c6789a9f01d4a305572090bc9a4",
+    "measured-source/benchmark_mla_decode_maca.py": "581b116390daf1eadf31c0cf59be044cedcbba76c4d0ab88a059f0a75761dfb3",
+    "measured-source/example_mla_decode_maca.py": "dd072430818b62e4da06a0aab801cafd0ac496c94180dc50369709fa5e980830",
+    "measured-source/measure.py": "b4108ae053d74e05fd02633cdea3a49116f3e7f05417c4fef1801b6d65a00bed",
+    "previous_public.py": "e0e20cbd4b2278d213858ff87407446fa7f0c49018da83b01e5b34c08aae5332",
+    "regression.py": "fc469c94974fdf0dc4dbb381b1a098eef305ddf2aa6cae1ac638a5204d8c61e4",
+    "release_check.py": "8f73b4c1fd21022e36b0941812c1efd75fbf6c6789a9f01d4a305572090bc9a4",
+    "transition.py": "f92af87f8f65147e0bf9d873d2ac3e8865c3beeb60ee90e2ac4299b1b748261b",
+    "wide_bench.py": "ad8359a5df6bcf62756d48e18950d35b1565e4356a60a277aef0822ca9e746e2",
+    "wide_candidate.py": "7236b8f97dc7bea1394adbb6330e1f2d6e9974b719b1da51ee9c3a4e215624b9"
+  },
+  "final_branch": "example/c500-mla-decode",
+  "final_public_commit": "fbc800158a2a07b699fc691cb6c836e63a776e84",
+  "final_public_hashes": {
+    "README.md": "d7beea62318a569a012860567be7c5a85bc9f2b4c44c8b3827ada25fdf21381e",
+    "benchmark_mla_decode_maca.py": "947605b8cfea0e87c17ec6d01a92170de9c83619b4cbb0e1c5b0b5fe16d9525e",
+    "example_mla_decode_maca.py": "146613b15639ed828d7dbeab485076f70374182989a75407ebb3100f4b38fc7f"
+  },
+  "public_before_transition": "ec33111",
+  "timing": {
+    "default_small": {
+      "inputs_seed": 367,
+      "batches": 6,
+      "warmup": 200,
+      "iterations": 2000
+    },
+    "default_large": {
+      "inputs_seed": 367,
+      "batches": 6,
+      "warmup": 5,
+      "iterations": 30
+    },
+    "default_transition": {
+      "inputs_seed": 2221,
+      "batches": 6,
+      "warmup": 20,
+      "iterations": 100
+    }
+  },
+  "runtime": {
+    "torch": "2.8.0+metax3.7.1.3",
+    "tilelang": "0.1.10+cuda.gitf549117c",
+    "max_threads_per_block": 1024,
+    "flashmla": "1.0.1+metax3.7.1.3torch2.8"
+  },
+  "facts": {
+    "published_shape_pairs": 22,
+    "small_batch_pairs": 12,
+    "amd_nominal_pairs": 10,
+    "default_event_wins": 126,
+    "default_wall_wins": 132,
+    "total_pairs_per_clock": 132,
+    "core_regression_checks": 198,
+    "additional_edge_checks": 78,
+    "generated_device_host_identical_shapes": 43,
+    "adopted_changed_shapes": 11,
+    "transition_holdout_changed_shapes": 9
+  },
+  "scope": {
+    "small_candidates": "power-of-two splits, fixed 16-head tile",
+    "large_candidates": "initial 16-head split sweep, then all legal power-of-two splits for 32-, 64-, 128-head tiles, 3 GiB partial-output search budget",
+    "dense": "initial N32/H16 split sweep plus feasible N16/32,H16/32/64,splits 1/4/8 and initial winner, 3 GiB partial-output search budget",
+    "native": "prepacked paged FlashMLA with precomputed scheduler metadata, returns output and LSE"
+  },
+  "final_checks": {
+    "last_device_job_exit": 0,
+    "slice_idle_after_last_job": true,
+    "public_sources_identical_on_device": true,
+    "public_tune_cases": [
+      [
+        16,
+        128,
+        2048
+      ],
+      [
+        9,
+        128,
+        4096
+      ]
+    ],
+    "tune_and_default": [
+      {
+        "chosen": "64/2",
+        "default": "64/2"
+      },
+      {
+        "chosen": "64/16",
+        "default": "64/4"
+      }
+    ]
+  }
+}

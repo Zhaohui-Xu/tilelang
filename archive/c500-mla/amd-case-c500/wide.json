@@ -1,0 +1,1526 @@
+{
+  "64x128x1024": {
+    "screen": {
+      "32,16,1,128": [
+        2398.46404393514,
+        2403.157393137614,
+        2398.1653849283853
+      ],
+      "32,16,4,128": [
+        2398.4853426615396,
+        2399.4240760803223,
+        2394.6240743001304
+      ],
+      "32,16,8,128": [
+        2515.2640342712402,
+        2516.2240664164224,
+        2514.3680572509766
+      ],
+      "32,32,1,128": [
+        9433.130900065104,
+        9442.431767781576,
+        9418.62424214681
+      ],
+      "32,32,4,128": [
+        8301.90912882487,
+        8309.802373250326,
+        8304.192225138346
+      ],
+      "32,32,8,128": [
+        8434.560139973959,
+        8450.645446777344,
+        8456.98102315267
+      ],
+      "64,16,1,128": [
+        7741.80285135905,
+        7742.165247599284,
+        7743.6370849609375
+      ],
+      "64,16,4,128": [
+        4733.269373575847,
+        4729.557355244954,
+        4732.096036275228
+      ],
+      "64,16,8,128": [
+        4862.314542134603,
+        4876.351992289226,
+        4874.645233154297
+      ],
+      "64,32,1,128": [
+        8323.861440022787,
+        8328.213373819986,
+        8316.05339050293
+      ],
+      "64,32,4,128": [
+        5960.298538208008,
+        5961.173375447591,
+        5960.5973561604815
+      ],
+      "64,32,8,128": [
+        6301.930745442708,
+        6308.330535888672,
+        6304.960250854492
+      ],
+      "64,16,1,256": [
+        2275.050640106201,
+        2277.7387301127114,
+        2278.1227429707847
+      ],
+      "64,16,4,256": [
+        2043.4773763020833,
+        2043.4773763020833,
+        2041.2373542785645
+      ],
+      "64,16,8,256": [
+        1984.5120112101238,
+        1985.429286956787,
+        1985.6853485107422
+      ],
+      "64,32,1,256": [
+        6773.525238037109,
+        6758.1437428792315,
+        6758.1437428792315
+      ],
+      "64,32,4,256": [
+        4329.877217610677,
+        4325.269381205241,
+        4324.79985555013
+      ],
+      "64,32,8,256": [
+        4573.610623677571,
+        4575.615882873535,
+        4571.7118581136065
+      ],
+      "128,16,1,256": [
+        8927.530924479166,
+        8924.586613972982,
+        8921.557108561197
+      ],
+      "128,16,4,256": [
+        5259.434700012207,
+        5253.461201985677,
+        5247.189203898112
+      ],
+      "128,16,8,256": [
+        4639.871915181478,
+        4649.450620015462,
+        4645.546595255534
+      ],
+      "128,32,1,256": [
+        5327.0613352457685,
+        5323.605219523112,
+        5324.757258097331
+      ],
+      "128,32,4,256": [
+        4076.7361323038735,
+        4074.8586654663086,
+        4074.303944905599
+      ],
+      "128,32,8,256": [
+        3889.6001180013022,
+        3892.949422200521,
+        3893.866539001465
+      ],
+      "32,0,1,256": [
+        769.6213722229004,
+        769.3653106689453,
+        769.215981165568
+      ],
+      "32,0,4,256": [
+        853.3546924591064,
+        853.0560334523519,
+        853.0986309051514
+      ],
+      "32,0,8,256": [
+        1113.3013566335042,
+        1121.1520036061604,
+        1110.6133460998535
+      ],
+      "64,0,1,512": [
+        680.8106899261475,
+        684.8639647165934,
+        696.51198387146
+      ],
+      "64,0,4,512": [
+        646.1866696675619,
+        646.1226542790731,
+        646.3359991709391
+      ],
+      "64,0,8,512": [
+        913.2373332977295,
+        912.2133255004883,
+        912.2347036997477
+      ]
+    },
+    "excluded": {
+      "32,16,1,256": "Check failed: pb->value != 0 (0 vs. 0) : Divide by zero",
+      "32,16,4,256": "Check failed: pb->value != 0 (0 vs. 0) : Divide by zero",
+      "32,16,8,256": "Check failed: pb->value != 0 (0 vs. 0) : Divide by zero",
+      "32,32,1,256": "Layout infer conflict between score and prob in T.Parallel loop:\n    loop Fragment((32, 32) -> (8,), replicate: 2, thread: 256, forward_thread: _rep * 128 + _i // 16 * 64 + _j % 16 // 4 * 16 + _i % 16, forward_index: (_j // 16 * 4 + _j % 4,), thread_range: I.Range(0, 256))\n    fragment Fragment((32, 32) -> (4,), replicate: 1, thread: 256, forward_thread: _j // 16 * 128 + _i // 16 * 64 + _j % 16 // 4 * 16 + _i % 16, forward_index: (_j % 4,), thread_range: I.Range(0, 256))\n",
+      "32,32,4,256": "Layout infer conflict between score and prob in T.Parallel loop:\n    loop Fragment((32, 32) -> (8,), replicate: 2, thread: 256, forward_thread: _rep * 128 + _i // 16 * 64 + _j % 16 // 4 * 16 + _i % 16, forward_index: (_j // 16 * 4 + _j % 4,), thread_range: I.Range(0, 256))\n    fragment Fragment((32, 32) -> (4,), replicate: 1, thread: 256, forward_thread: _j // 16 * 128 + _i // 16 * 64 + _j % 16 // 4 * 16 + _i % 16, forward_index: (_j % 4,), thread_range: I.Range(0, 256))\n",
+      "32,32,8,256": "Layout infer conflict between score and prob in T.Parallel loop:\n    loop Fragment((32, 32) -> (8,), replicate: 2, thread: 256, forward_thread: _rep * 128 + _i // 16 * 64 + _j % 16 // 4 * 16 + _i % 16, forward_index: (_j // 16 * 4 + _j % 4,), thread_range: I.Range(0, 256))\n    fragment Fragment((32, 32) -> (4,), replicate: 1, thread: 256, forward_thread: _j // 16 * 128 + _i // 16 * 64 + _j % 16 // 4 * 16 + _i % 16, forward_index: (_j % 4,), thread_range: I.Range(0, 256))\n"
+    },
+    "best": "64,0,4,512",
+    "dense_screen": {
+      "16,32,1": [
+        1100.053310394287,
+        1099.2426872253418,
+        1099.9893347422283
+      ],
+      "16,32,4": [
+        3563.88250986735,
+        3562.154769897461,
+        3560.341199239095
+      ],
+      "16,32,8": [
+        3938.666661580404,
+        3943.850517272949,
+        3933.055877685547
+      ]
+    },
+    "dense_excluded": {
+      "16,16,1": "Check failed: pb->value != 0 (0 vs. 0) : Divide by zero",
+      "16,16,4": "Check failed: pb->value != 0 (0 vs. 0) : Divide by zero",
+      "16,16,8": "Check failed: pb->value != 0 (0 vs. 0) : Divide by zero",
+      "32,16,1": "Layout infer conflict between scores_max and scores_scale in T.Parallel loop:\n    loop Fragment((32,) -> (2,), replicate: 8, thread: 128, forward_thread: _rep % 2 * 64 + _rep // 2 * 16 + _i % 16, forward_index: (_i // 16,), thread_range: I.Range(0, 128))\n    fragment Fragment((32,) -> (1,), replicate: 4, thread: 128, forward_thread: _i // 16 * 64 + _rep * 16 + _i % 16, forward_index: (0,), thread_range: I.Range(0, 128))\n",
+      "32,16,4": "Layout infer conflict between scores_max and scores_scale in T.Parallel loop:\n    loop Fragment((32,) -> (2,), replicate: 8, thread: 128, forward_thread: _rep % 2 * 64 + _rep // 2 * 16 + _i % 16, forward_index: (_i // 16,), thread_range: I.Range(0, 128))\n    fragment Fragment((32,) -> (1,), replicate: 4, thread: 128, forward_thread: _i // 16 * 64 + _rep * 16 + _i % 16, forward_index: (0,), thread_range: I.Range(0, 128))\n",
+      "32,16,8": "Layout infer conflict between scores_max and scores_scale in T.Parallel loop:\n    loop Fragment((32,) -> (2,), replicate: 8, thread: 128, forward_thread: _rep % 2 * 64 + _rep // 2 * 16 + _i % 16, forward_index: (_i // 16,), thread_range: I.Range(0, 128))\n    fragment Fragment((32,) -> (1,), replicate: 4, thread: 128, forward_thread: _i // 16 * 64 + _rep * 16 + _i % 16, forward_index: (0,), thread_range: I.Range(0, 128))\n",
+      "32,32,1": "shared-memory estimate above device limit",
+      "32,32,4": "shared-memory estimate above device limit",
+      "32,32,8": "shared-memory estimate above device limit",
+      "64,16,1": "shared-memory estimate above device limit",
+      "64,16,4": "shared-memory estimate above device limit",
+      "64,16,8": "shared-memory estimate above device limit",
+      "64,32,1": "shared-memory estimate above device limit",
+      "64,32,4": "shared-memory estimate above device limit",
+      "64,32,8": "shared-memory estimate above device limit"
+    },
+    "shared_limit": 65536,
+    "best_dense": "16,32,1",
+    "max_abs": {
+      "wide": 0.00013685226440429688,
+      "c500": 0.0001361072063446045,
+      "dense": 0.00015366077423095703
+    },
+    "event": [
+      {
+        "wide": 645.747184753418,
+        "c500": 1243.8783645629883,
+        "dense": 1096.6527938842773
+      },
+      {
+        "wide": 645.6064224243164,
+        "dense": 1096.5760231018066,
+        "c500": 1242.7647590637207
+      },
+      {
+        "dense": 1095.7951545715332,
+        "wide": 645.6575870513916,
+        "c500": 1243.404769897461
+      },
+      {
+        "dense": 1096.5760231018066,
+        "c500": 1243.507194519043,
+        "wide": 644.8639869689941
+      },
+      {
+        "c500": 1244.8512077331543,
+        "dense": 1096.1536407470703,
+        "wide": 645.2479839324951
+      },
+      {
+        "c500": 1243.507194519043,
+        "wide": 645.5039978027344,
+        "dense": 1096.5888023376465
+      }
+    ],
+    "wall": [
+      {
+        "wide": 650.5913013825193,
+        "c500": 1245.8851997507736,
+        "dense": 1100.205647526309
+      },
+      {
+        "wide": 647.8836497990415,
+        "dense": 1100.815599784255,
+        "c500": 1245.6488504540175
+      },
+      {
+        "dense": 1100.788899930194,
+        "wide": 648.0918498709798,
+        "c500": 1248.1226003728807
+      },
+      {
+        "dense": 1098.0755498167127,
+        "c500": 1248.0485514970496,
+        "wide": 649.5189503766596
+      },
+      {
+        "c500": 1249.2978014051914,
+        "dense": 1101.8752498785034,
+        "wide": 648.2114986283705
+      },
+      {
+        "c500": 1247.9372002417222,
+        "wide": 648.0507523519918,
+        "dense": 1100.258799851872
+      }
+    ],
+    "stress_max_abs": {
+      "early-peak": 0.0,
+      "late-peak": 0.0,
+      "large-v": 0.0
+    },
+    "complete": true
+  },
+  "128x128x8192": {
+    "screen": {
+      "32,16,1,128": [
+        37870.71990966797,
+        37834.17510986328,
+        37843.92547607422
+      ],
+      "32,16,4,128": [
+        31969.322204589844,
+        31975.125630696613,
+        31951.510111490887
+      ],
+      "32,16,8,128": [
+        33484.94974772135,
+        33464.683532714844,
+        33474.30419921875
+      ],
+      "32,32,1,128": [
+        132724.45678710938,
+        132807.95288085938,
+        132797.9939778646
+      ],
+      "32,32,4,128": [
+        127609.06982421875,
+        127539.03198242188,
+        127564.697265625
+      ],
+      "32,32,8,128": [
+        125810.04842122395,
+        126018.6055501302,
+        125849.21264648438
+      ],
+      "64,16,1,128": [
+        73795.32877604167,
+        73787.73498535156,
+        73791.50899251302
+      ],
+      "64,16,4,128": [
+        69643.21899414062,
+        69673.96036783855,
+        69673.75183105469
+      ],
+      "64,16,8,128": [
+        64019.500732421875,
+        64000.36112467448,
+        63996.18021647135
+      ],
+      "64,32,1,128": [
+        104961.51733398438,
+        104966.88842773438,
+        104917.24650065105
+      ],
+      "64,32,4,128": [
+        90357.3710123698,
+        90341.59342447917,
+        90314.2801920573
+      ],
+      "64,32,8,128": [
+        91049.11295572917,
+        90999.39982096355,
+        91016.27604166667
+      ],
+      "64,16,1,256": [
+        35015.8945719401,
+        34993.28104654948,
+        34991.467793782555
+      ],
+      "64,16,4,256": [
+        25207.76621500651,
+        25209.365844726562,
+        25193.96209716797
+      ],
+      "64,16,8,256": [
+        25436.71417236328,
+        25431.978861490887,
+        25424.341837565105
+      ],
+      "64,32,1,256": [
+        82793.19254557292,
+        82727.6611328125,
+        82751.74458821614
+      ],
+      "64,32,4,256": [
+        64237.07580566406,
+        64275.99080403646,
+        64276.92667643229
+      ],
+      "64,32,8,256": [
+        64358.29162597656,
+        64373.97257486979,
+        64508.31095377604
+      ],
+      "128,16,1,256": [
+        91287.19075520833,
+        91278.2694498698,
+        91276.5401204427
+      ],
+      "128,16,4,256": [
+        64526.25020345052,
+        64514.6230061849,
+        64507.81758626302
+      ],
+      "128,16,8,256": [
+        59846.01847330729,
+        59857.42696126302,
+        59859.99043782552
+      ],
+      "128,32,1,256": [
+        78818.83748372395,
+        78814.65657552083,
+        78799.9979654948
+      ],
+      "128,32,4,256": [
+        53596.71529134115,
+        53614.654541015625,
+        53638.163248697914
+      ],
+      "128,32,8,256": [
+        54029.7597249349,
+        54029.05782063802,
+        54077.545166015625
+      ],
+      "32,0,1,256": [
+        9321.599960327148,
+        9320.44792175293,
+        9319.744110107422
+      ],
+      "32,0,4,256": [
+        9479.509353637695,
+        9480.38419087728,
+        9479.018529256186
+      ],
+      "32,0,8,256": [
+        10384.981155395508,
+        10384.042739868164,
+        10385.493596394857
+      ],
+      "64,0,1,512": [
+        7158.8694254557295,
+        7145.0455983479815,
+        7161.02409362793
+      ],
+      "64,0,4,512": [
+        6459.0504964192705,
+        6456.298828125,
+        6456.149419148763
+      ],
+      "64,0,8,512": [
+        6968.4906005859375,
+        6971.178690592448,
+        6973.375956217448
+      ]
+    },
+    "excluded": {
+      "32,16,1,256": "Check failed: pb->value != 0 (0 vs. 0) : Divide by zero",
+      "32,16,4,256": "Check failed: pb->value != 0 (0 vs. 0) : Divide by zero",
+      "32,16,8,256": "Check failed: pb->value != 0 (0 vs. 0) : Divide by zero",
+      "32,32,1,256": "Layout infer conflict between score and prob in T.Parallel loop:\n    loop Fragment((32, 32) -> (8,), replicate: 2, thread: 256, forward_thread: _rep * 128 + _i // 16 * 64 + _j % 16 // 4 * 16 + _i % 16, forward_index: (_j // 16 * 4 + _j % 4,), thread_range: I.Range(0, 256))\n    fragment Fragment((32, 32) -> (4,), replicate: 1, thread: 256, forward_thread: _j // 16 * 128 + _i // 16 * 64 + _j % 16 // 4 * 16 + _i % 16, forward_index: (_j % 4,), thread_range: I.Range(0, 256))\n",
+      "32,32,4,256": "Layout infer conflict between score and prob in T.Parallel loop:\n    loop Fragment((32, 32) -> (8,), replicate: 2, thread: 256, forward_thread: _rep * 128 + _i // 16 * 64 + _j % 16 // 4 * 16 + _i % 16, forward_index: (_j // 16 * 4 + _j % 4,), thread_range: I.Range(0, 256))\n    fragment Fragment((32, 32) -> (4,), replicate: 1, thread: 256, forward_thread: _j // 16 * 128 + _i // 16 * 64 + _j % 16 // 4 * 16 + _i % 16, forward_index: (_j % 4,), thread_range: I.Range(0, 256))\n",
+      "32,32,8,256": "Layout infer conflict between score and prob in T.Parallel loop:\n    loop Fragment((32, 32) -> (8,), replicate: 2, thread: 256, forward_thread: _rep * 128 + _i // 16 * 64 + _j % 16 // 4 * 16 + _i % 16, forward_index: (_j // 16 * 4 + _j % 4,), thread_range: I.Range(0, 256))\n    fragment Fragment((32, 32) -> (4,), replicate: 1, thread: 256, forward_thread: _j // 16 * 128 + _i // 16 * 64 + _j % 16 // 4 * 16 + _i % 16, forward_index: (_j % 4,), thread_range: I.Range(0, 256))\n"
+    },
+    "best": "64,0,4,512",
+    "dense_screen": {
+      "16,32,1": [
+        16856.831868489582,
+        16883.562723795574,
+        16859.989166259766
+      ],
+      "16,32,4": [
+        53336.55293782552,
+        53349.07531738281,
+        53313.578287760414
+      ],
+      "16,32,8": [
+        54874.603271484375,
+        54911.31591796875,
+        54911.48885091146
+      ]
+    },
+    "dense_excluded": {
+      "16,16,1": "Check failed: pb->value != 0 (0 vs. 0) : Divide by zero",
+      "16,16,4": "Check failed: pb->value != 0 (0 vs. 0) : Divide by zero",
+      "16,16,8": "Check failed: pb->value != 0 (0 vs. 0) : Divide by zero",
+      "32,16,1": "Layout infer conflict between scores_max and scores_scale in T.Parallel loop:\n    loop Fragment((32,) -> (2,), replicate: 8, thread: 128, forward_thread: _rep % 2 * 64 + _rep // 2 * 16 + _i % 16, forward_index: (_i // 16,), thread_range: I.Range(0, 128))\n    fragment Fragment((32,) -> (1,), replicate: 4, thread: 128, forward_thread: _i // 16 * 64 + _rep * 16 + _i % 16, forward_index: (0,), thread_range: I.Range(0, 128))\n",
+      "32,16,4": "Layout infer conflict between scores_max and scores_scale in T.Parallel loop:\n    loop Fragment((32,) -> (2,), replicate: 8, thread: 128, forward_thread: _rep % 2 * 64 + _rep // 2 * 16 + _i % 16, forward_index: (_i // 16,), thread_range: I.Range(0, 128))\n    fragment Fragment((32,) -> (1,), replicate: 4, thread: 128, forward_thread: _i // 16 * 64 + _rep * 16 + _i % 16, forward_index: (0,), thread_range: I.Range(0, 128))\n",
+      "32,16,8": "Layout infer conflict between scores_max and scores_scale in T.Parallel loop:\n    loop Fragment((32,) -> (2,), replicate: 8, thread: 128, forward_thread: _rep % 2 * 64 + _rep // 2 * 16 + _i % 16, forward_index: (_i // 16,), thread_range: I.Range(0, 128))\n    fragment Fragment((32,) -> (1,), replicate: 4, thread: 128, forward_thread: _i // 16 * 64 + _rep * 16 + _i % 16, forward_index: (0,), thread_range: I.Range(0, 128))\n",
+      "32,32,1": "shared-memory estimate above device limit",
+      "32,32,4": "shared-memory estimate above device limit",
+      "32,32,8": "shared-memory estimate above device limit",
+      "64,16,1": "shared-memory estimate above device limit",
+      "64,16,4": "shared-memory estimate above device limit",
+      "64,16,8": "shared-memory estimate above device limit",
+      "64,32,1": "shared-memory estimate above device limit",
+      "64,32,4": "shared-memory estimate above device limit",
+      "64,32,8": "shared-memory estimate above device limit"
+    },
+    "shared_limit": 65536,
+    "best_dense": "16,32,1",
+    "max_abs": {
+      "wide": 6.982684135437012e-05,
+      "c500": 7.155537605285645e-05,
+      "dense": 7.387995719909668e-05
+    },
+    "event": [
+      {
+        "wide": 6454.271697998047,
+        "c500": 16251.571655273438,
+        "dense": 16869.427490234375
+      },
+      {
+        "wide": 6453.6834716796875,
+        "dense": 16859.161376953125,
+        "c500": 16250.355529785156
+      },
+      {
+        "dense": 16872.409057617188,
+        "wide": 6454.093170166016,
+        "c500": 16251.994323730469
+      },
+      {
+        "dense": 16861.6455078125,
+        "c500": 16252.108764648438,
+        "wide": 6453.465270996094
+      },
+      {
+        "c500": 16252.748107910156,
+        "dense": 16853.619384765625,
+        "wide": 6454.425811767578
+      },
+      {
+        "c500": 16251.788330078125,
+        "wide": 6453.708648681641,
+        "dense": 16855.091857910156
+      }
+    ],
+    "wall": [
+      {
+        "wide": 6453.874599537812,
+        "c500": 16256.336751393974,
+        "dense": 16855.727901565842
+      },
+      {
+        "wide": 6458.612700225785,
+        "dense": 16879.09520114772,
+        "c500": 16259.789900504984
+      },
+      {
+        "dense": 16847.894599777646,
+        "wide": 6456.0264989268035,
+        "c500": 16256.163851357996
+      },
+      {
+        "dense": 16879.96450054925,
+        "c500": 16257.804850465618,
+        "wide": 6457.033898914233
+      },
+      {
+        "c500": 16262.07655062899,
+        "dense": 16863.9379524393,
+        "wide": 6455.135651049204
+      },
+      {
+        "c500": 16258.414651383646,
+        "wide": 6462.235399521887,
+        "dense": 16879.825948853977
+      }
+    ],
+    "stress_max_abs": {
+      "early-peak": 0.0,
+      "late-peak": 0.0,
+      "large-v": 0.0
+    },
+    "complete": true
+  },
+  "64x128x2048": {
+    "screen": {
+      "64,0,4,512": [
+        1032.6826572418213,
+        1032.981316248576,
+        1031.9360097249348
+      ]
+    },
+    "excluded": {},
+    "best": "64,0,4,512",
+    "dense_screen": {
+      "16,32,1": [
+        2147.9466756184897,
+        2149.120012919108,
+        2147.882620493571
+      ],
+      "16,32,4": [
+        6901.034673055013,
+        6894.378662109375,
+        6896.490732828776
+      ],
+      "16,32,8": [
+        7363.669077555339,
+        7356.5012613932295,
+        7350.634892781575
+      ]
+    },
+    "dense_excluded": {
+      "16,16,1": "Check failed: pb->value != 0 (0 vs. 0) : Divide by zero",
+      "16,16,4": "Check failed: pb->value != 0 (0 vs. 0) : Divide by zero",
+      "16,16,8": "Check failed: pb->value != 0 (0 vs. 0) : Divide by zero",
+      "32,16,1": "Layout infer conflict between scores_max and scores_scale in T.Parallel loop:\n    loop Fragment((32,) -> (2,), replicate: 8, thread: 128, forward_thread: _rep % 2 * 64 + _rep // 2 * 16 + _i % 16, forward_index: (_i // 16,), thread_range: I.Range(0, 128))\n    fragment Fragment((32,) -> (1,), replicate: 4, thread: 128, forward_thread: _i // 16 * 64 + _rep * 16 + _i % 16, forward_index: (0,), thread_range: I.Range(0, 128))\n",
+      "32,16,4": "Layout infer conflict between scores_max and scores_scale in T.Parallel loop:\n    loop Fragment((32,) -> (2,), replicate: 8, thread: 128, forward_thread: _rep % 2 * 64 + _rep // 2 * 16 + _i % 16, forward_index: (_i // 16,), thread_range: I.Range(0, 128))\n    fragment Fragment((32,) -> (1,), replicate: 4, thread: 128, forward_thread: _i // 16 * 64 + _rep * 16 + _i % 16, forward_index: (0,), thread_range: I.Range(0, 128))\n",
+      "32,16,8": "Layout infer conflict between scores_max and scores_scale in T.Parallel loop:\n    loop Fragment((32,) -> (2,), replicate: 8, thread: 128, forward_thread: _rep % 2 * 64 + _rep // 2 * 16 + _i % 16, forward_index: (_i // 16,), thread_range: I.Range(0, 128))\n    fragment Fragment((32,) -> (1,), replicate: 4, thread: 128, forward_thread: _i // 16 * 64 + _rep * 16 + _i % 16, forward_index: (0,), thread_range: I.Range(0, 128))\n",
+      "32,32,1": "shared-memory estimate above device limit",
+      "32,32,4": "shared-memory estimate above device limit",
+      "32,32,8": "shared-memory estimate above device limit",
+      "64,16,1": "shared-memory estimate above device limit",
+      "64,16,4": "shared-memory estimate above device limit",
+      "64,16,8": "shared-memory estimate above device limit",
+      "64,32,1": "shared-memory estimate above device limit",
+      "64,32,4": "shared-memory estimate above device limit",
+      "64,32,8": "shared-memory estimate above device limit"
+    },
+    "shared_limit": 65536,
+    "best_dense": "16,32,1",
+    "max_abs": {
+      "wide": 0.00011169910430908203,
+      "c500": 0.00011169910430908203,
+      "dense": 0.00011169910430908203
+    },
+    "event": [
+      {
+        "wide": 1028.889560699463,
+        "c500": 2477.222442626953,
+        "dense": 2149.4272232055664
+      },
+      {
+        "wide": 1029.7087669372559,
+        "dense": 2148.543930053711,
+        "c500": 2474.8544692993164
+      },
+      {
+        "dense": 2146.3424682617188,
+        "wide": 1028.9152145385742,
+        "c500": 2474.5471954345703
+      },
+      {
+        "dense": 2146.3680267333984,
+        "c500": 2475.2384185791016,
+        "wide": 1029.8751831054688
+      },
+      {
+        "c500": 2475.5456924438477,
+        "dense": 2145.792007446289,
+        "wide": 1028.9152145385742
+      },
+      {
+        "c500": 2476.595115661621,
+        "wide": 1030.0288200378418,
+        "dense": 2147.2000122070312
+      }
+    ],
+    "wall": [
+      {
+        "wide": 1036.261350964196,
+        "c500": 2477.6015983661637,
+        "dense": 2147.909451741725
+      },
+      {
+        "wide": 1032.4829490855336,
+        "dense": 2150.9336482267827,
+        "c500": 2479.7281017526984
+      },
+      {
+        "dense": 2150.8607984287664,
+        "wide": 1035.1006494602188,
+        "c500": 2479.659952223301
+      },
+      {
+        "dense": 2153.672999702394,
+        "c500": 2479.698500246741,
+        "wide": 1032.4893984943628
+      },
+      {
+        "c500": 2479.6305020572618,
+        "dense": 2150.866249576211,
+        "wide": 1032.3861002689227
+      },
+      {
+        "c500": 2482.2487990604714,
+        "wide": 1032.6002986403182,
+        "dense": 2147.6845984579995
+      }
+    ],
+    "stress_max_abs": {
+      "early-peak": 0.0,
+      "late-peak": 0.0,
+      "large-v": 0.0
+    },
+    "complete": true
+  },
+  "64x128x4096": {
+    "screen": {
+      "64,0,4,512": [
+        1773.695945739746,
+        1771.9465891520183,
+        1771.1787223815918
+      ]
+    },
+    "excluded": {},
+    "best": "64,0,4,512",
+    "dense_screen": {
+      "16,32,1": [
+        4245.418548583984,
+        4246.677398681641,
+        4259.6480051676435
+      ],
+      "16,32,4": [
+        13567.80751546224,
+        13595.264434814453,
+        13585.450490315756
+      ],
+      "16,32,8": [
+        14108.351389567057,
+        14097.899119059244,
+        14112.703959147135
+      ]
+    },
+    "dense_excluded": {
+      "16,16,1": "Check failed: pb->value != 0 (0 vs. 0) : Divide by zero",
+      "16,16,4": "Check failed: pb->value != 0 (0 vs. 0) : Divide by zero",
+      "16,16,8": "Check failed: pb->value != 0 (0 vs. 0) : Divide by zero",
+      "32,16,1": "Layout infer conflict between scores_max and scores_scale in T.Parallel loop:\n    loop Fragment((32,) -> (2,), replicate: 8, thread: 128, forward_thread: _rep % 2 * 64 + _rep // 2 * 16 + _i % 16, forward_index: (_i // 16,), thread_range: I.Range(0, 128))\n    fragment Fragment((32,) -> (1,), replicate: 4, thread: 128, forward_thread: _i // 16 * 64 + _rep * 16 + _i % 16, forward_index: (0,), thread_range: I.Range(0, 128))\n",
+      "32,16,4": "Layout infer conflict between scores_max and scores_scale in T.Parallel loop:\n    loop Fragment((32,) -> (2,), replicate: 8, thread: 128, forward_thread: _rep % 2 * 64 + _rep // 2 * 16 + _i % 16, forward_index: (_i // 16,), thread_range: I.Range(0, 128))\n    fragment Fragment((32,) -> (1,), replicate: 4, thread: 128, forward_thread: _i // 16 * 64 + _rep * 16 + _i % 16, forward_index: (0,), thread_range: I.Range(0, 128))\n",
+      "32,16,8": "Layout infer conflict between scores_max and scores_scale in T.Parallel loop:\n    loop Fragment((32,) -> (2,), replicate: 8, thread: 128, forward_thread: _rep % 2 * 64 + _rep // 2 * 16 + _i % 16, forward_index: (_i // 16,), thread_range: I.Range(0, 128))\n    fragment Fragment((32,) -> (1,), replicate: 4, thread: 128, forward_thread: _i // 16 * 64 + _rep * 16 + _i % 16, forward_index: (0,), thread_range: I.Range(0, 128))\n",
+      "32,32,1": "shared-memory estimate above device limit",
+      "32,32,4": "shared-memory estimate above device limit",
+      "32,32,8": "shared-memory estimate above device limit",
+      "64,16,1": "shared-memory estimate above device limit",
+      "64,16,4": "shared-memory estimate above device limit",
+      "64,16,8": "shared-memory estimate above device limit",
+      "64,32,1": "shared-memory estimate above device limit",
+      "64,32,4": "shared-memory estimate above device limit",
+      "64,32,8": "shared-memory estimate above device limit"
+    },
+    "shared_limit": 65536,
+    "best_dense": "16,32,1",
+    "max_abs": {
+      "wide": 9.903311729431152e-05,
+      "c500": 9.903311729431152e-05,
+      "dense": 9.903311729431152e-05
+    },
+    "event": [
+      {
+        "wide": 1769.932746887207,
+        "c500": 4388.351821899414,
+        "dense": 4251.174545288086
+      },
+      {
+        "wide": 1771.251106262207,
+        "dense": 4251.67350769043,
+        "c500": 4389.324951171875
+      },
+      {
+        "dense": 4249.77912902832,
+        "wide": 1771.5839385986328,
+        "c500": 4389.798355102539
+      },
+      {
+        "dense": 4241.241455078125,
+        "c500": 4388.620758056641,
+        "wide": 1769.8944091796875
+      },
+      {
+        "c500": 4389.939117431641,
+        "dense": 4247.052764892578,
+        "wide": 1771.2640762329102
+      },
+      {
+        "c500": 4388.748931884766,
+        "wide": 1770.2144622802734,
+        "dense": 4244.0704345703125
+      }
+    ],
+    "wall": [
+      {
+        "wide": 1774.0719486027956,
+        "c500": 4392.927399021573,
+        "dense": 4245.291848201305
+      },
+      {
+        "wide": 1774.8607991961762,
+        "dense": 4243.260298972018,
+        "c500": 4393.090651137754
+      },
+      {
+        "dense": 4253.056948073208,
+        "wide": 1774.8037993442267,
+        "c500": 4392.8470520768315
+      },
+      {
+        "dense": 4247.745699831285,
+        "c500": 4392.93930248823,
+        "wide": 1774.6877507306635
+      },
+      {
+        "c500": 4393.094099941663,
+        "dense": 4253.091147984378,
+        "wide": 1774.6666504535824
+      },
+      {
+        "c500": 4393.021151190624,
+        "wide": 1774.7329489793628,
+        "dense": 4245.118499966338
+      }
+    ],
+    "stress_max_abs": {
+      "early-peak": 0.0,
+      "late-peak": 0.0,
+      "large-v": 0.0
+    },
+    "complete": true
+  },
+  "64x128x8192": {
+    "screen": {
+      "64,0,4,512": [
+        3243.690808614095,
+        3238.9119466145835,
+        3240.000089009603
+      ]
+    },
+    "excluded": {},
+    "best": "64,0,4,512",
+    "dense_screen": {
+      "16,32,1": [
+        8425.984064737955,
+        8419.647852579752,
+        8443.093617757162
+      ],
+      "16,32,4": [
+        26866.175333658855,
+        26875.712076822918,
+        26839.78780110677
+      ],
+      "16,32,8": [
+        27596.79921468099,
+        27570.2387491862,
+        27611.241658528645
+      ]
+    },
+    "dense_excluded": {
+      "16,16,1": "Check failed: pb->value != 0 (0 vs. 0) : Divide by zero",
+      "16,16,4": "Check failed: pb->value != 0 (0 vs. 0) : Divide by zero",
+      "16,16,8": "Check failed: pb->value != 0 (0 vs. 0) : Divide by zero",
+      "32,16,1": "Layout infer conflict between scores_max and scores_scale in T.Parallel loop:\n    loop Fragment((32,) -> (2,), replicate: 8, thread: 128, forward_thread: _rep % 2 * 64 + _rep // 2 * 16 + _i % 16, forward_index: (_i // 16,), thread_range: I.Range(0, 128))\n    fragment Fragment((32,) -> (1,), replicate: 4, thread: 128, forward_thread: _i // 16 * 64 + _rep * 16 + _i % 16, forward_index: (0,), thread_range: I.Range(0, 128))\n",
+      "32,16,4": "Layout infer conflict between scores_max and scores_scale in T.Parallel loop:\n    loop Fragment((32,) -> (2,), replicate: 8, thread: 128, forward_thread: _rep % 2 * 64 + _rep // 2 * 16 + _i % 16, forward_index: (_i // 16,), thread_range: I.Range(0, 128))\n    fragment Fragment((32,) -> (1,), replicate: 4, thread: 128, forward_thread: _i // 16 * 64 + _rep * 16 + _i % 16, forward_index: (0,), thread_range: I.Range(0, 128))\n",
+      "32,16,8": "Layout infer conflict between scores_max and scores_scale in T.Parallel loop:\n    loop Fragment((32,) -> (2,), replicate: 8, thread: 128, forward_thread: _rep % 2 * 64 + _rep // 2 * 16 + _i % 16, forward_index: (_i // 16,), thread_range: I.Range(0, 128))\n    fragment Fragment((32,) -> (1,), replicate: 4, thread: 128, forward_thread: _i // 16 * 64 + _rep * 16 + _i % 16, forward_index: (0,), thread_range: I.Range(0, 128))\n",
+      "32,32,1": "shared-memory estimate above device limit",
+      "32,32,4": "shared-memory estimate above device limit",
+      "32,32,8": "shared-memory estimate above device limit",
+      "64,16,1": "shared-memory estimate above device limit",
+      "64,16,4": "shared-memory estimate above device limit",
+      "64,16,8": "shared-memory estimate above device limit",
+      "64,32,1": "shared-memory estimate above device limit",
+      "64,32,4": "shared-memory estimate above device limit",
+      "64,32,8": "shared-memory estimate above device limit"
+    },
+    "shared_limit": 65536,
+    "best_dense": "16,32,1",
+    "max_abs": {
+      "wide": 0.00012320280075073242,
+      "c500": 0.00012320280075073242,
+      "dense": 0.00012093782424926758
+    },
+    "event": [
+      {
+        "wide": 3242.4705505371094,
+        "c500": 8268.160247802734,
+        "dense": 8427.87857055664
+      },
+      {
+        "wide": 3244.441604614258,
+        "dense": 8428.275299072266,
+        "c500": 8267.98095703125
+      },
+      {
+        "dense": 8438.809967041016,
+        "wide": 3239.4752502441406,
+        "c500": 8268.415832519531
+      },
+      {
+        "dense": 8424.19204711914,
+        "c500": 8268.479919433594,
+        "wide": 3242.483139038086
+      },
+      {
+        "c500": 8268.505859375,
+        "dense": 8435.481262207031,
+        "wide": 3240.332794189453
+      },
+      {
+        "c500": 8267.76351928711,
+        "wide": 3242.5342559814453,
+        "dense": 8434.111785888672
+      }
+    ],
+    "wall": [
+      {
+        "wide": 3247.9441491886973,
+        "c500": 8272.431150544435,
+        "dense": 8442.689999355935
+      },
+      {
+        "wide": 3245.449750102125,
+        "dense": 8445.225251489319,
+        "c500": 8271.737847826444
+      },
+      {
+        "dense": 8432.22489929758,
+        "wide": 3248.219849774614,
+        "c500": 8271.885450812988
+      },
+      {
+        "dense": 8445.944101549685,
+        "c500": 8273.09129817877,
+        "wide": 3245.4713014885783
+      },
+      {
+        "c500": 8271.792798768729,
+        "dense": 8424.312699935399,
+        "wide": 3246.3189505506307
+      },
+      {
+        "c500": 8271.909650648013,
+        "wide": 3248.582949163392,
+        "dense": 8432.053099386394
+      }
+    ],
+    "stress_max_abs": {
+      "early-peak": 0.0,
+      "late-peak": 0.0,
+      "large-v": 0.0
+    },
+    "complete": true
+  },
+  "64x128x16384": {
+    "screen": {
+      "64,0,4,512": [
+        6183.573404947917,
+        6186.922709147136,
+        6184.832255045573
+      ]
+    },
+    "excluded": {},
+    "best": "64,0,4,512",
+    "dense_screen": {
+      "16,32,1": [
+        16790.016174316406,
+        16796.075185139973,
+        16848.128000895184
+      ],
+      "16,32,4": [
+        53432.6171875,
+        53464.019775390625,
+        53406.93155924479
+      ],
+      "16,32,8": [
+        54449.04581705729,
+        54393.98193359375,
+        54512.81229654948
+      ]
+    },
+    "dense_excluded": {
+      "16,16,1": "Check failed: pb->value != 0 (0 vs. 0) : Divide by zero",
+      "16,16,4": "Check failed: pb->value != 0 (0 vs. 0) : Divide by zero",
+      "16,16,8": "Check failed: pb->value != 0 (0 vs. 0) : Divide by zero",
+      "32,16,1": "Layout infer conflict between scores_max and scores_scale in T.Parallel loop:\n    loop Fragment((32,) -> (2,), replicate: 8, thread: 128, forward_thread: _rep % 2 * 64 + _rep // 2 * 16 + _i % 16, forward_index: (_i // 16,), thread_range: I.Range(0, 128))\n    fragment Fragment((32,) -> (1,), replicate: 4, thread: 128, forward_thread: _i // 16 * 64 + _rep * 16 + _i % 16, forward_index: (0,), thread_range: I.Range(0, 128))\n",
+      "32,16,4": "Layout infer conflict between scores_max and scores_scale in T.Parallel loop:\n    loop Fragment((32,) -> (2,), replicate: 8, thread: 128, forward_thread: _rep % 2 * 64 + _rep // 2 * 16 + _i % 16, forward_index: (_i // 16,), thread_range: I.Range(0, 128))\n    fragment Fragment((32,) -> (1,), replicate: 4, thread: 128, forward_thread: _i // 16 * 64 + _rep * 16 + _i % 16, forward_index: (0,), thread_range: I.Range(0, 128))\n",
+      "32,16,8": "Layout infer conflict between scores_max and scores_scale in T.Parallel loop:\n    loop Fragment((32,) -> (2,), replicate: 8, thread: 128, forward_thread: _rep % 2 * 64 + _rep // 2 * 16 + _i % 16, forward_index: (_i // 16,), thread_range: I.Range(0, 128))\n    fragment Fragment((32,) -> (1,), replicate: 4, thread: 128, forward_thread: _i // 16 * 64 + _rep * 16 + _i % 16, forward_index: (0,), thread_range: I.Range(0, 128))\n",
+      "32,32,1": "shared-memory estimate above device limit",
+      "32,32,4": "shared-memory estimate above device limit",
+      "32,32,8": "shared-memory estimate above device limit",
+      "64,16,1": "shared-memory estimate above device limit",
+      "64,16,4": "shared-memory estimate above device limit",
+      "64,16,8": "shared-memory estimate above device limit",
+      "64,32,1": "shared-memory estimate above device limit",
+      "64,32,4": "shared-memory estimate above device limit",
+      "64,32,8": "shared-memory estimate above device limit"
+    },
+    "shared_limit": 65536,
+    "best_dense": "16,32,1",
+    "max_abs": {
+      "wide": 6.665289402008057e-05,
+      "c500": 6.733834743499756e-05,
+      "dense": 6.902217864990234e-05
+    },
+    "event": [
+      {
+        "wide": 6185.881423950195,
+        "c500": 16002.265930175781,
+        "dense": 16812.55645751953
+      },
+      {
+        "wide": 6183.705520629883,
+        "dense": 16819.097900390625,
+        "c500": 16002.700805664062
+      },
+      {
+        "dense": 16840.792846679688,
+        "wide": 6183.782577514648,
+        "c500": 16004.441833496094
+      },
+      {
+        "dense": 16805.389404296875,
+        "c500": 16005.094909667969,
+        "wide": 6186.124801635742
+      },
+      {
+        "c500": 16003.762817382812,
+        "dense": 16812.620544433594,
+        "wide": 6184.422302246094
+      },
+      {
+        "c500": 16005.491638183594,
+        "wide": 6183.142471313477,
+        "dense": 16777.420043945312
+      }
+    ],
+    "wall": [
+      {
+        "wide": 6191.593600669876,
+        "c500": 16010.983250453137,
+        "dense": 16820.919851306826
+      },
+      {
+        "wide": 6189.865100895986,
+        "dense": 16797.191250952892,
+        "c500": 16008.055550628342
+      },
+      {
+        "dense": 16817.063401686028,
+        "wide": 6191.953251254745,
+        "c500": 16006.173848290928
+      },
+      {
+        "dense": 16871.57565029338,
+        "c500": 16007.675050059333,
+        "wide": 6190.312298713252
+      },
+      {
+        "c500": 16006.473402376287,
+        "dense": 16803.040250670165,
+        "wide": 6187.789348769002
+      },
+      {
+        "c500": 16009.532500174828,
+        "wide": 6185.316501068883,
+        "dense": 16811.190600856207
+      }
+    ],
+    "stress_max_abs": {
+      "early-peak": 0.0,
+      "late-peak": 0.0,
+      "large-v": 0.0
+    },
+    "complete": true
+  },
+  "128x128x1024": {
+    "screen": {
+      "64,0,4,512": [
+        1275.4133542378743,
+        1274.7093041737874,
+        1274.389346440633
+      ]
+    },
+    "excluded": {},
+    "best": "64,0,4,512",
+    "dense_screen": {
+      "16,32,1": [
+        2186.240037282308,
+        2186.367988586426,
+        2187.1360143025718
+      ],
+      "16,32,4": [
+        7066.752115885417,
+        7056.512196858724,
+        7056.277592976888
+      ],
+      "16,32,8": [
+        7807.29611714681,
+        7801.941553751628,
+        7798.7410227457685
+      ]
+    },
+    "dense_excluded": {
+      "16,16,1": "Check failed: pb->value != 0 (0 vs. 0) : Divide by zero",
+      "16,16,4": "Check failed: pb->value != 0 (0 vs. 0) : Divide by zero",
+      "16,16,8": "Check failed: pb->value != 0 (0 vs. 0) : Divide by zero",
+      "32,16,1": "Layout infer conflict between scores_max and scores_scale in T.Parallel loop:\n    loop Fragment((32,) -> (2,), replicate: 8, thread: 128, forward_thread: _rep % 2 * 64 + _rep // 2 * 16 + _i % 16, forward_index: (_i // 16,), thread_range: I.Range(0, 128))\n    fragment Fragment((32,) -> (1,), replicate: 4, thread: 128, forward_thread: _i // 16 * 64 + _rep * 16 + _i % 16, forward_index: (0,), thread_range: I.Range(0, 128))\n",
+      "32,16,4": "Layout infer conflict between scores_max and scores_scale in T.Parallel loop:\n    loop Fragment((32,) -> (2,), replicate: 8, thread: 128, forward_thread: _rep % 2 * 64 + _rep // 2 * 16 + _i % 16, forward_index: (_i // 16,), thread_range: I.Range(0, 128))\n    fragment Fragment((32,) -> (1,), replicate: 4, thread: 128, forward_thread: _i // 16 * 64 + _rep * 16 + _i % 16, forward_index: (0,), thread_range: I.Range(0, 128))\n",
+      "32,16,8": "Layout infer conflict between scores_max and scores_scale in T.Parallel loop:\n    loop Fragment((32,) -> (2,), replicate: 8, thread: 128, forward_thread: _rep % 2 * 64 + _rep // 2 * 16 + _i % 16, forward_index: (_i // 16,), thread_range: I.Range(0, 128))\n    fragment Fragment((32,) -> (1,), replicate: 4, thread: 128, forward_thread: _i // 16 * 64 + _rep * 16 + _i % 16, forward_index: (0,), thread_range: I.Range(0, 128))\n",
+      "32,32,1": "shared-memory estimate above device limit",
+      "32,32,4": "shared-memory estimate above device limit",
+      "32,32,8": "shared-memory estimate above device limit",
+      "64,16,1": "shared-memory estimate above device limit",
+      "64,16,4": "shared-memory estimate above device limit",
+      "64,16,8": "shared-memory estimate above device limit",
+      "64,32,1": "shared-memory estimate above device limit",
+      "64,32,4": "shared-memory estimate above device limit",
+      "64,32,8": "shared-memory estimate above device limit"
+    },
+    "shared_limit": 65536,
+    "best_dense": "16,32,1",
+    "max_abs": {
+      "wide": 0.00014957785606384277,
+      "c500": 0.00013977289199829102,
+      "dense": 0.00015017390251159668
+    },
+    "event": [
+      {
+        "wide": 1274.3680000305176,
+        "c500": 2441.971206665039,
+        "dense": 2183.4367752075195
+      },
+      {
+        "wide": 1273.0624198913574,
+        "dense": 2183.4239959716797,
+        "c500": 2442.7648544311523
+      },
+      {
+        "dense": 2184.2432022094727,
+        "wide": 1272.9087829589844,
+        "c500": 2441.2160873413086
+      },
+      {
+        "dense": 2184.000015258789,
+        "c500": 2442.0095443725586,
+        "wide": 1273.5103607177734
+      },
+      {
+        "c500": 2441.856002807617,
+        "dense": 2183.5519790649414,
+        "wide": 1273.151969909668
+      },
+      {
+        "c500": 2441.6128158569336,
+        "wide": 1273.0624198913574,
+        "dense": 2182.771110534668
+      }
+    ],
+    "wall": [
+      {
+        "wide": 1277.0391011144966,
+        "c500": 2446.30649976898,
+        "dense": 2189.017998171039
+      },
+      {
+        "wide": 1277.619498432614,
+        "dense": 2188.127799308859,
+        "c500": 2444.97409730684
+      },
+      {
+        "dense": 2185.5398517800495,
+        "wide": 1277.2156507708132,
+        "c500": 2446.7318988172337
+      },
+      {
+        "dense": 2187.3493475141004,
+        "c500": 2445.4463477013633,
+        "wide": 1277.895999373868
+      },
+      {
+        "c500": 2445.6138984533027,
+        "dense": 2188.029501121491,
+        "wide": 1277.036452665925
+      },
+      {
+        "c500": 2449.8173006577417,
+        "wide": 1277.970999944955,
+        "dense": 2187.5601494684815
+      }
+    ],
+    "stress_max_abs": {
+      "early-peak": 0.0,
+      "late-peak": 0.0,
+      "large-v": 0.0
+    },
+    "complete": true
+  },
+  "128x128x2048": {
+    "screen": {
+      "64,0,4,512": [
+        2039.189338684082,
+        2042.9226557413738,
+        2040.2347246805828
+      ]
+    },
+    "excluded": {},
+    "best": "64,0,4,512",
+    "dense_screen": {
+      "16,32,1": [
+        4293.290774027507,
+        4285.056114196777,
+        4282.517433166504
+      ],
+      "16,32,4": [
+        13674.858093261719,
+        13665.279388427734,
+        13673.044840494791
+      ],
+      "16,32,8": [
+        14617.151896158854,
+        14612.010955810547,
+        14628.223419189453
+      ]
+    },
+    "dense_excluded": {
+      "16,16,1": "Check failed: pb->value != 0 (0 vs. 0) : Divide by zero",
+      "16,16,4": "Check failed: pb->value != 0 (0 vs. 0) : Divide by zero",
+      "16,16,8": "Check failed: pb->value != 0 (0 vs. 0) : Divide by zero",
+      "32,16,1": "Layout infer conflict between scores_max and scores_scale in T.Parallel loop:\n    loop Fragment((32,) -> (2,), replicate: 8, thread: 128, forward_thread: _rep % 2 * 64 + _rep // 2 * 16 + _i % 16, forward_index: (_i // 16,), thread_range: I.Range(0, 128))\n    fragment Fragment((32,) -> (1,), replicate: 4, thread: 128, forward_thread: _i // 16 * 64 + _rep * 16 + _i % 16, forward_index: (0,), thread_range: I.Range(0, 128))\n",
+      "32,16,4": "Layout infer conflict between scores_max and scores_scale in T.Parallel loop:\n    loop Fragment((32,) -> (2,), replicate: 8, thread: 128, forward_thread: _rep % 2 * 64 + _rep // 2 * 16 + _i % 16, forward_index: (_i // 16,), thread_range: I.Range(0, 128))\n    fragment Fragment((32,) -> (1,), replicate: 4, thread: 128, forward_thread: _i // 16 * 64 + _rep * 16 + _i % 16, forward_index: (0,), thread_range: I.Range(0, 128))\n",
+      "32,16,8": "Layout infer conflict between scores_max and scores_scale in T.Parallel loop:\n    loop Fragment((32,) -> (2,), replicate: 8, thread: 128, forward_thread: _rep % 2 * 64 + _rep // 2 * 16 + _i % 16, forward_index: (_i // 16,), thread_range: I.Range(0, 128))\n    fragment Fragment((32,) -> (1,), replicate: 4, thread: 128, forward_thread: _i // 16 * 64 + _rep * 16 + _i % 16, forward_index: (0,), thread_range: I.Range(0, 128))\n",
+      "32,32,1": "shared-memory estimate above device limit",
+      "32,32,4": "shared-memory estimate above device limit",
+      "32,32,8": "shared-memory estimate above device limit",
+      "64,16,1": "shared-memory estimate above device limit",
+      "64,16,4": "shared-memory estimate above device limit",
+      "64,16,8": "shared-memory estimate above device limit",
+      "64,32,1": "shared-memory estimate above device limit",
+      "64,32,4": "shared-memory estimate above device limit",
+      "64,32,8": "shared-memory estimate above device limit"
+    },
+    "shared_limit": 65536,
+    "best_dense": "16,32,1",
+    "max_abs": {
+      "wide": 0.00012180209159851074,
+      "c500": 0.00012746453285217285,
+      "dense": 0.00012695789337158203
+    },
+    "event": [
+      {
+        "wide": 2037.785530090332,
+        "c500": 4928.422546386719,
+        "dense": 4279.654312133789
+      },
+      {
+        "wide": 2038.2720947265625,
+        "dense": 4284.364700317383,
+        "c500": 4928.499221801758
+      },
+      {
+        "dense": 4282.329559326172,
+        "wide": 2038.8351440429688,
+        "c500": 4926.899337768555
+      },
+      {
+        "dense": 4282.547378540039,
+        "c500": 4927.360153198242,
+        "wide": 2040.4096603393555
+      },
+      {
+        "c500": 4928.422546386719,
+        "dense": 4284.838485717773,
+        "wide": 2037.1967315673828
+      },
+      {
+        "c500": 4928.6529541015625,
+        "wide": 2037.606430053711,
+        "dense": 4279.539108276367
+      }
+    ],
+    "wall": [
+      {
+        "wide": 2040.4610986588523,
+        "c500": 4934.922649408691,
+        "dense": 4284.6060008741915
+      },
+      {
+        "wide": 2042.9028489161283,
+        "dense": 4287.234100047499,
+        "c500": 4933.07255092077
+      },
+      {
+        "dense": 4291.396198095754,
+        "wide": 2044.4899011636153,
+        "c500": 4935.603350168094
+      },
+      {
+        "dense": 4287.507449043915,
+        "c500": 4932.926001492888,
+        "wide": 2040.5241986736655
+      },
+      {
+        "c500": 4934.0410507284105,
+        "dense": 4285.083801369183,
+        "wide": 2045.639351126738
+      },
+      {
+        "c500": 4932.266249670647,
+        "wide": 2042.9933007108048,
+        "dense": 4289.953899569809
+      }
+    ],
+    "stress_max_abs": {
+      "early-peak": 0.0,
+      "late-peak": 0.0,
+      "large-v": 0.0
+    },
+    "complete": true
+  },
+  "128x128x4096": {
+    "screen": {
+      "64,0,4,512": [
+        3515.413284301758,
+        3514.047940572103,
+        3514.3254597981772
+      ]
+    },
+    "excluded": {},
+    "best": "64,0,4,512",
+    "dense_screen": {
+      "16,32,1": [
+        8489.62148030599,
+        8476.99228922526,
+        8472.533543904623
+      ],
+      "16,32,4": [
+        26952.02128092448,
+        26967.999776204426,
+        26967.252095540363
+      ],
+      "16,32,8": [
+        28088.043212890625,
+        28068.7993367513,
+        28083.79618326823
+      ]
+    },
+    "dense_excluded": {
+      "16,16,1": "Check failed: pb->value != 0 (0 vs. 0) : Divide by zero",
+      "16,16,4": "Check failed: pb->value != 0 (0 vs. 0) : Divide by zero",
+      "16,16,8": "Check failed: pb->value != 0 (0 vs. 0) : Divide by zero",
+      "32,16,1": "Layout infer conflict between scores_max and scores_scale in T.Parallel loop:\n    loop Fragment((32,) -> (2,), replicate: 8, thread: 128, forward_thread: _rep % 2 * 64 + _rep // 2 * 16 + _i % 16, forward_index: (_i // 16,), thread_range: I.Range(0, 128))\n    fragment Fragment((32,) -> (1,), replicate: 4, thread: 128, forward_thread: _i // 16 * 64 + _rep * 16 + _i % 16, forward_index: (0,), thread_range: I.Range(0, 128))\n",
+      "32,16,4": "Layout infer conflict between scores_max and scores_scale in T.Parallel loop:\n    loop Fragment((32,) -> (2,), replicate: 8, thread: 128, forward_thread: _rep % 2 * 64 + _rep // 2 * 16 + _i % 16, forward_index: (_i // 16,), thread_range: I.Range(0, 128))\n    fragment Fragment((32,) -> (1,), replicate: 4, thread: 128, forward_thread: _i // 16 * 64 + _rep * 16 + _i % 16, forward_index: (0,), thread_range: I.Range(0, 128))\n",
+      "32,16,8": "Layout infer conflict between scores_max and scores_scale in T.Parallel loop:\n    loop Fragment((32,) -> (2,), replicate: 8, thread: 128, forward_thread: _rep % 2 * 64 + _rep // 2 * 16 + _i % 16, forward_index: (_i // 16,), thread_range: I.Range(0, 128))\n    fragment Fragment((32,) -> (1,), replicate: 4, thread: 128, forward_thread: _i // 16 * 64 + _rep * 16 + _i % 16, forward_index: (0,), thread_range: I.Range(0, 128))\n",
+      "32,32,1": "shared-memory estimate above device limit",
+      "32,32,4": "shared-memory estimate above device limit",
+      "32,32,8": "shared-memory estimate above device limit",
+      "64,16,1": "shared-memory estimate above device limit",
+      "64,16,4": "shared-memory estimate above device limit",
+      "64,16,8": "shared-memory estimate above device limit",
+      "64,32,1": "shared-memory estimate above device limit",
+      "64,32,4": "shared-memory estimate above device limit",
+      "64,32,8": "shared-memory estimate above device limit"
+    },
+    "shared_limit": 65536,
+    "best_dense": "16,32,1",
+    "max_abs": {
+      "wide": 0.00010007619857788086,
+      "c500": 0.00010007619857788086,
+      "dense": 0.00010007619857788086
+    },
+    "event": [
+      {
+        "wide": 3512.691116333008,
+        "c500": 8664.115142822266,
+        "dense": 8475.289916992188
+      },
+      {
+        "wide": 3511.6161346435547,
+        "dense": 8479.00161743164,
+        "c500": 8663.680267333984
+      },
+      {
+        "dense": 8480.448150634766,
+        "wide": 3513.4078979492188,
+        "c500": 8661.837005615234
+      },
+      {
+        "dense": 8478.272247314453,
+        "c500": 8663.782501220703,
+        "wide": 3512.870407104492
+      },
+      {
+        "c500": 8663.040161132812,
+        "dense": 8473.983764648438,
+        "wide": 3511.1038208007812
+      },
+      {
+        "c500": 8660.838317871094,
+        "wide": 3511.027145385742,
+        "dense": 8490.803527832031
+      }
+    ],
+    "wall": [
+      {
+        "wide": 3516.4605505997315,
+        "c500": 8669.962399289943,
+        "dense": 8482.660149456933
+      },
+      {
+        "wide": 3520.6010477850214,
+        "dense": 8474.478448624723,
+        "c500": 8666.71550029423
+      },
+      {
+        "dense": 8490.294549847022,
+        "wide": 3514.618400367908,
+        "c500": 8664.070349186659
+      },
+      {
+        "dense": 8475.404549972154,
+        "c500": 8664.117299485952,
+        "wide": 3519.8084980947897
+      },
+      {
+        "c500": 8673.180898767896,
+        "dense": 8479.359600460157,
+        "wide": 3516.2743501132354
+      },
+      {
+        "c500": 8668.094899621792,
+        "wide": 3517.923248000443,
+        "dense": 8483.717651688494
+      }
+    ],
+    "stress_max_abs": {
+      "early-peak": 0.0,
+      "late-peak": 0.0,
+      "large-v": 0.0
+    },
+    "complete": true
+  },
+  "128x128x16384": {
+    "screen": {
+      "64,0,4,512": [
+        12344.51166788737,
+        12336.191813151041,
+        12337.023417154947
+      ]
+    },
+    "excluded": {},
+    "best": "64,0,4,512",
+    "dense_screen": {
+      "16,32,1": [
+        33603.35032145182,
+        33710.99853515625,
+        33679.14581298828
+      ],
+      "16,32,4": [
+        106194.69197591145,
+        106325.96842447917,
+        106224.34488932292
+      ],
+      "16,32,8": [
+        108351.84733072917,
+        108444.43766276042,
+        108429.60611979167
+      ]
+    },
+    "dense_excluded": {
+      "16,16,1": "Check failed: pb->value != 0 (0 vs. 0) : Divide by zero",
+      "16,16,4": "Check failed: pb->value != 0 (0 vs. 0) : Divide by zero",
+      "16,16,8": "Check failed: pb->value != 0 (0 vs. 0) : Divide by zero",
+      "32,16,1": "Layout infer conflict between scores_max and scores_scale in T.Parallel loop:\n    loop Fragment((32,) -> (2,), replicate: 8, thread: 128, forward_thread: _rep % 2 * 64 + _rep // 2 * 16 + _i % 16, forward_index: (_i // 16,), thread_range: I.Range(0, 128))\n    fragment Fragment((32,) -> (1,), replicate: 4, thread: 128, forward_thread: _i // 16 * 64 + _rep * 16 + _i % 16, forward_index: (0,), thread_range: I.Range(0, 128))\n",
+      "32,16,4": "Layout infer conflict between scores_max and scores_scale in T.Parallel loop:\n    loop Fragment((32,) -> (2,), replicate: 8, thread: 128, forward_thread: _rep % 2 * 64 + _rep // 2 * 16 + _i % 16, forward_index: (_i // 16,), thread_range: I.Range(0, 128))\n    fragment Fragment((32,) -> (1,), replicate: 4, thread: 128, forward_thread: _i // 16 * 64 + _rep * 16 + _i % 16, forward_index: (0,), thread_range: I.Range(0, 128))\n",
+      "32,16,8": "Layout infer conflict between scores_max and scores_scale in T.Parallel loop:\n    loop Fragment((32,) -> (2,), replicate: 8, thread: 128, forward_thread: _rep % 2 * 64 + _rep // 2 * 16 + _i % 16, forward_index: (_i // 16,), thread_range: I.Range(0, 128))\n    fragment Fragment((32,) -> (1,), replicate: 4, thread: 128, forward_thread: _i // 16 * 64 + _rep * 16 + _i % 16, forward_index: (0,), thread_range: I.Range(0, 128))\n",
+      "32,32,1": "shared-memory estimate above device limit",
+      "32,32,4": "shared-memory estimate above device limit",
+      "32,32,8": "shared-memory estimate above device limit",
+      "64,16,1": "shared-memory estimate above device limit",
+      "64,16,4": "shared-memory estimate above device limit",
+      "64,16,8": "shared-memory estimate above device limit",
+      "64,32,1": "shared-memory estimate above device limit",
+      "64,32,4": "shared-memory estimate above device limit",
+      "64,32,8": "shared-memory estimate above device limit"
+    },
+    "shared_limit": 65536,
+    "best_dense": "16,32,1",
+    "max_abs": {
+      "wide": 6.927549839019775e-05,
+      "c500": 6.721913814544678e-05,
+      "dense": 6.893277168273926e-05
+    },
+    "event": [
+      {
+        "wide": 12334.796905517578,
+        "c500": 31702.938842773438,
+        "dense": 33600.537109375
+      },
+      {
+        "wide": 12335.38589477539,
+        "dense": 33641.10107421875,
+        "c500": 31704.666137695312
+      },
+      {
+        "dense": 33600.46081542969,
+        "wide": 12332.608032226562,
+        "c500": 31704.1015625
+      },
+      {
+        "dense": 33662.9638671875,
+        "c500": 31707.687377929688,
+        "wide": 12334.6435546875
+      },
+      {
+        "c500": 31702.911376953125,
+        "dense": 33588.90380859375,
+        "wide": 12334.259033203125
+      },
+      {
+        "c500": 31711.9873046875,
+        "wide": 12334.758758544922,
+        "dense": 33689.38293457031
+      }
+    ],
+    "wall": [
+      {
+        "wide": 12342.112101032399,
+        "c500": 31716.10544959549,
+        "dense": 33642.82234979328
+      },
+      {
+        "wide": 12347.001550369896,
+        "dense": 33638.98920069914,
+        "c500": 31717.90190099273
+      },
+      {
+        "dense": 33629.10360156093,
+        "wide": 12341.685351566412,
+        "c500": 31714.899951475672
+      },
+      {
+        "dense": 33660.57079983875,
+        "c500": 31713.633149047382,
+        "wide": 12340.741150546819
+      },
+      {
+        "c500": 31710.134749300778,
+        "dense": 33615.23500061594,
+        "wide": 12337.99965120852
+      },
+      {
+        "c500": 31713.426049100235,
+        "wide": 12340.45939927455,
+        "dense": 33617.78899852652
+      }
+    ],
+    "stress_max_abs": {
+      "early-peak": 0.0,
+      "late-peak": 0.0,
+      "large-v": 0.0
+    },
+    "complete": true
+  }
+}

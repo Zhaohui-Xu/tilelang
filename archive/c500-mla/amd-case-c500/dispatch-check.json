@@ -1,0 +1,64 @@
+{
+  "kv_min": 1,
+  "kv_max": 65536,
+  "batch_heads": [
+    [
+      1,
+      16
+    ],
+    [
+      2,
+      16
+    ],
+    [
+      3,
+      16
+    ],
+    [
+      4,
+      16
+    ],
+    [
+      8,
+      32
+    ],
+    [
+      1,
+      128
+    ],
+    [
+      7,
+      48
+    ],
+    [
+      16,
+      64
+    ],
+    [
+      32,
+      128
+    ],
+    [
+      63,
+      128
+    ],
+    [
+      64,
+      128
+    ],
+    [
+      65,
+      64
+    ],
+    [
+      128,
+      128
+    ]
+  ],
+  "configurations_checked": 851968,
+  "invariants": [
+    "tile divides heads",
+    "splits positive power of two",
+    "splits at most number of token tiles"
+  ]
+}
