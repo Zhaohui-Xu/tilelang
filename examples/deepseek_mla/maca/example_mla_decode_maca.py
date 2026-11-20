@@ -19,7 +19,9 @@ def default_schedule(batch, query_heads, kv_ctx):
     # the product of independent head groups and key tiles is large enough.
     wide_groups = batch * (query_heads // 64)
     if query_heads % 64 == 0 and wide_groups * tiles >= 1024:
-        block_target = min(512, 8 * tiles)
+        # Near the crossover, one grid of about 64 blocks avoids the merge
+        # traffic of extra splits. Longer workloads benefit from more blocks.
+        block_target = 64 if wide_groups * tiles <= 3072 else min(512, 8 * tiles)
         blocks_per_group = (block_target + wide_groups - 1) // wide_groups
         split_limit = 1 << (max(1, tiles // 16).bit_length() - 1)
         return 64, min(1 << (blocks_per_group - 1).bit_length(), split_limit)
