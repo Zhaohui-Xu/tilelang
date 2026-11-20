@@ -1,0 +1,33 @@
+{
+  "checked": "2026-11-20",
+  "github_default_heads": {
+    "tile-ai/tilelang-metax": "90d49f353ec88bd0d346474f143003d865dd3b79",
+    "MetaX-MACA/TileOPs-Metax": "916221870e092fff9c2219ef7d15f2e52299e141",
+    "MetaX-MACA/FlashMLA": "b246af19465084b1a97d4de480c3ea0c1b356e4c"
+  },
+  "measured_source": {
+    "path": "examples/deepseek_mla/example_mla_decode.py",
+    "blob": "1404fac50b7caa2c4290241994525f588cf50f1b",
+    "old_pinned_path": "examples/maca/deepseek_mla/example_mla_decode.py",
+    "old_pinned_blob": "502bd2cb2c1fcb8ddefb1f327ef4beede6f26c2f"
+  },
+  "tileops_files": [
+    {
+      "path": "pyproject.toml",
+      "blob": "d45ce4456bcbc4ce64c737c231f4d4a082dcd949"
+    },
+    {
+      "path": "benchmarks/ops/bench_mla.py",
+      "blob": "79365280c894d4dbc457401a3be394e27e5c6711"
+    },
+    {
+      "path": "src/tileops/_ops/attention/mla.py",
+      "blob": "9d9d66682080bb1cdece063cb353de6ce43966be"
+    },
+    {
+      "path": "src/tileops/_kernels/attention/mla/decode.py",
+      "blob": "81d6dc85a37e28d06896ff70ed904cb82c0e26ea"
+    }
+  ],
+  "flashmla_api": "777dc9009fd941cf484320b19a1f211aee67f845"
+}
