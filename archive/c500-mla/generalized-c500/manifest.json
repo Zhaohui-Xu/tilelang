@@ -1,0 +1,25 @@
+{
+  "date": "2026-11-20",
+  "development": "d0c9f99",
+  "archive": "8606870",
+  "baseline_revision": "90d49f353ec88bd0d346474f143003d865dd3b79",
+  "sha256": {
+    "benchmark_mla_decode_maca.py": "8c1f434810b3fb0ee59e9ae3ec7010ae8ef35e2dbe4fc59803f9cd600aa23aff",
+    "example_mla_decode_maca.py": "915542dce1faa57c3133b43d02b7f4413729a3dfc3012b35b7e273cc4526ba67",
+    "suite.py": "e575cc1bfebed62468dd0d22c8e61d17887cd0cc5f0967f480fa5decd487b2bf",
+    "stable_mla.py": "3567b13a77c1194f2a6303de460dc95ce37e66eb51ed746587c154b2c4339688",
+    "upstream_example.py": "558c56f65c0c8376f05b1bca785e995123a53162c9fbd38c4366915853265dc3"
+  },
+  "stack": {
+    "tilelang": "0.1.10+cuda.gitf549117c",
+    "torch": "2.8.0+metax3.7.1.3",
+    "target": "MetaX C500, 50% compute, 32000 MiB slice"
+  },
+  "commands": [
+    "python benchmark_mla_decode_maca.py --kv-length 2048 --seeds 8 --check-only",
+    "python benchmark_mla_decode_maca.py --kv-length 2049 --seeds 8 --check-only",
+    "python suite.py boundary",
+    "python suite.py archive",
+    "python suite.py upstream"
+  ]
+}

@@ -1,0 +1,110 @@
+{
+  "1x1": {
+    "max_abs": {
+      "candidate": 0.0
+    },
+    "complete": true
+  },
+  "1x31": {
+    "max_abs": {
+      "candidate": 0.0009765625
+    },
+    "complete": true
+  },
+  "1x32": {
+    "max_abs": {
+      "candidate": 0.0004673004150390625
+    },
+    "complete": true
+  },
+  "1x33": {
+    "max_abs": {
+      "candidate": 0.0009765625
+    },
+    "complete": true
+  },
+  "1x2047": {
+    "max_abs": {
+      "candidate": 0.0003662109375
+    },
+    "complete": true
+  },
+  "1x2048": {
+    "max_abs": {
+      "candidate": 8.508563041687012e-05
+    },
+    "complete": true
+  },
+  "1x2049": {
+    "max_abs": {
+      "candidate": 0.0003662109375
+    },
+    "complete": true
+  },
+  "1x6144": {
+    "max_abs": {
+      "candidate": 0.006103515625
+    },
+    "complete": true
+  },
+  "1x8193": {
+    "max_abs": {
+      "candidate": 0.1875
+    },
+    "complete": true
+  },
+  "1x12288": {
+    "max_abs": {
+      "candidate": 0.2000732421875
+    },
+    "complete": true
+  },
+  "1x65535": {
+    "max_abs": {
+      "candidate": 0.0311279296875
+    },
+    "complete": true
+  },
+  "1x65536": {
+    "max_abs": {
+      "candidate": 6.0170888900756836e-05
+    },
+    "complete": true
+  },
+  "2x33": {
+    "max_abs": {
+      "candidate": 0.0009765625
+    },
+    "complete": true
+  },
+  "2x2049": {
+    "max_abs": {
+      "candidate": 0.0003662109375
+    },
+    "complete": true
+  },
+  "2x8192": {
+    "max_abs": {
+      "candidate": 6.42240047454834e-05
+    },
+    "complete": true
+  },
+  "4x33": {
+    "max_abs": {
+      "candidate": 0.0009765625
+    },
+    "complete": true
+  },
+  "4x2049": {
+    "max_abs": {
+      "candidate": 0.0003662109375
+    },
+    "complete": true
+  },
+  "4x8192": {
+    "max_abs": {
+      "candidate": 6.906688213348389e-05
+    },
+    "complete": true
+  }
+}
