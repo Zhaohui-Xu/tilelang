@@ -9,19 +9,25 @@ from tilelang.maca.intrinsics import TensorCoreIntrinEmitter
 
 @lru_cache(maxsize=None)
 @tilelang.jit(target="maca", pass_configs={tilelang.PassConfigKey.TL_ENABLE_FAST_MATH: True})
-def mla_decode_maca(batch, kv_ctx):
+def mla_decode_maca(batch, kv_ctx, query_heads=16, num_split=64):
     heads, kv_heads, dim, pe_dim = 16, 1, 512, 64
-    assert batch > 0
+    assert batch > 0 and query_heads > 0 and query_heads % heads == 0
+    assert 1 <= num_split <= 2048 and num_split & (num_split - 1) == 0
     assert 1 <= kv_ctx <= 65536
     dtype, accum_dtype = T.float16, T.float32
-    block_n, num_split, wave_size = 32, 64, 64
+    block_n, wave_size = 32, 64
     main_threads, merge_threads = 128, 256
     num_tiles = (kv_ctx + block_n - 1) // block_n
     base_tiles, extra = divmod(num_tiles, num_split)
     max_tiles = base_tiles + int(extra > 0)
     group_tiles = min(max_tiles, 8)
-    stats_offset = batch * num_split * heads * dim
-    max_offset = stats_offset + batch * num_split * heads
+    chains = min(8, num_split)
+    active_lanes = min(num_split, wave_size)
+    reduction_steps = active_lanes.bit_length() - 1
+    groups_per_band = min(8, num_split // chains)
+    stats_offset = batch * num_split * query_heads * dim
+    max_offset = stats_offset + batch * num_split * query_heads
+    workspace_size = batch * num_split * query_heads * (dim + 2) if num_split > 1 else 1
     scale = math.log2(math.e) / math.sqrt(dim + pe_dim)
 
     pv_mma = TensorCoreIntrinEmitter(
@@ -34,15 +40,17 @@ def mla_decode_maca(batch, kv_ctx):
 
     @T.prim_func
     def main(
-        q: T.Tensor([batch, heads, dim], dtype),
-        q_pe: T.Tensor([batch, heads, pe_dim], dtype),
+        q: T.Tensor([batch, query_heads, dim], dtype),
+        q_pe: T.Tensor([batch, query_heads, pe_dim], dtype),
         kv: T.Tensor([batch, kv_ctx, kv_heads, dim], dtype),
         k_pe: T.Tensor([batch, kv_ctx, kv_heads, pe_dim], dtype),
-        output: T.Tensor([batch, heads, dim], dtype),
+        output: T.Tensor([batch, query_heads, dim], dtype),
     ):
-        workspace = T.alloc_global([batch * num_split * heads * (dim + 2)], accum_dtype)
+        workspace = T.alloc_global([workspace_size], accum_dtype)
 
-        with T.Kernel(num_split, batch, threads=main_threads) as (sid, bid):
+        with T.Kernel(num_split, batch * (query_heads // heads), threads=main_threads) as (sid, block):
+            bid = block // (query_heads // heads)
+            head_start = (block % (query_heads // heads)) * heads
             qk_shared = T.alloc_shared([heads, dim + pe_dim], dtype)
             key_shared = T.alloc_shared([block_n, dim + pe_dim], dtype)
             prob_shared = T.alloc_shared([heads, block_n], dtype)
@@ -66,8 +74,8 @@ def mla_decode_maca(batch, kv_ctx):
             lane_main = tx_main % 64
             wave_main = tx_main // 64
 
-            T.copy(q[bid, :, :], qk_shared[:, :dim])
-            T.copy(q_pe[bid, :, :], qk_shared[:, dim : dim + pe_dim])
+            T.copy(q[bid, head_start : head_start + heads, :], qk_shared[:, :dim])
+            T.copy(q_pe[bid, head_start : head_start + heads, :], qk_shared[:, dim : dim + pe_dim])
             T.fill(output_acc, 0)
             T.fill(denom_acc, 0)
             T.fill(ones_b, 1.0)
@@ -136,54 +144,70 @@ def mla_decode_maca(batch, kv_ctx):
                 for local_id in T.vectorized(4):
                     row = lane_main % 16
                     col = wave_main * 256 + j * 16 + (lane_main // 16) * 4 + local_id
-                    workspace[((bid * num_split + sid) * heads + row) * dim + col] = output_acc[j * 4 + local_id]
-            if tx_main < heads:
-                workspace[stats_offset + (bid * num_split + sid) * heads + tx_main] = denom_acc[0]
-            for h in T.Parallel(heads):
-                workspace[max_offset + (bid * num_split + sid) * heads + h] = running_max[h]
+                    if num_split == 1:
+                        output[bid, head_start + row, col] = output_acc[j * 4 + local_id] / denom_acc[local_id]
+                    else:
+                        workspace[((bid * num_split + sid) * query_heads + head_start + row) * dim + col] = output_acc[j * 4 + local_id]
+            if num_split > 1 and tx_main < heads:
+                workspace[stats_offset + (bid * num_split + sid) * query_heads + head_start + tx_main] = denom_acc[0]
+            if num_split > 1:
+                for h in T.Parallel(heads):
+                    workspace[max_offset + (bid * num_split + sid) * query_heads + head_start + h] = running_max[h]
 
-        with T.Kernel(heads, batch, threads=merge_threads) as (merge_head, merge_batch):
-            tx = T.get_thread_binding()
-            lane, wave = tx % wave_size, tx // wave_size
-            weights = T.alloc_shared((merge_threads // wave_size, num_split), accum_dtype)
-            acc = T.alloc_local((8, 2), accum_dtype)
-            result = T.alloc_local((2,), accum_dtype)
-            global_max = T.alloc_var(accum_dtype)
-            total = T.alloc_var(accum_dtype)
-            peer = T.alloc_var(accum_dtype)
-            weight = T.alloc_var(accum_dtype)
+        if num_split > 1:
+            with T.Kernel(query_heads, batch, threads=merge_threads) as (merge_head, merge_batch):
+                tx = T.get_thread_binding()
+                lane, wave = tx % wave_size, tx // wave_size
+                weights = T.alloc_shared((merge_threads // wave_size, num_split), accum_dtype)
+                acc = T.alloc_local((chains, 2), accum_dtype)
+                result = T.alloc_local((2,), accum_dtype)
+                global_max = T.alloc_var(accum_dtype)
+                total = T.alloc_var(accum_dtype)
+                peer = T.alloc_var(accum_dtype)
+                weight = T.alloc_var(accum_dtype)
 
-            # Each wave computes its own weights and owns disjoint output columns.
-            global_max = workspace[max_offset + (merge_batch * num_split + lane) * heads + merge_head]
-            for step in T.unroll(6):
-                distance = 32 >> step
-                peer = T.shfl_down(global_max, distance, wave_size)
-                if lane < distance:
-                    global_max = T.max(global_max, peer)
-            global_max = T.shfl_sync(global_max, 0, wave_size)
-            weight = T.exp2((workspace[max_offset + (merge_batch * num_split + lane) * heads + merge_head] - global_max) * scale)
-            weights[wave, lane] = weight
+                # Each wave computes its own weights and owns disjoint output columns.
+                global_max = workspace[max_offset + (merge_batch * num_split + lane % num_split) * query_heads + merge_head]
+                for shard in T.serial(1, (num_split + wave_size - 1) // wave_size):
+                    index = (merge_batch * num_split + shard * wave_size + lane) * query_heads + merge_head
+                    global_max = T.max(global_max, workspace[max_offset + index])
+                for step in T.unroll(reduction_steps):
+                    distance = (active_lanes // 2) >> step
+                    peer = T.shfl_down(global_max, distance, wave_size)
+                    if lane < distance:
+                        global_max = T.max(global_max, peer)
+                global_max = T.shfl_sync(global_max, 0, wave_size)
+                weight = T.exp2((workspace[max_offset + (merge_batch * num_split + lane % num_split) * query_heads + merge_head] - global_max) * scale)
+                if lane < num_split:
+                    weights[wave, lane] = weight
 
-            total = weight * workspace[stats_offset + (merge_batch * num_split + lane) * heads + merge_head]
-            for step in T.unroll(6):
-                distance = 32 >> step
-                peer = T.shfl_down(total, distance, wave_size)
-                if lane < distance:
-                    total += peer
-            total = T.shfl_sync(total, 0, wave_size)
-            T.sync_warp()
+                total = weight * workspace[stats_offset + (merge_batch * num_split + lane % num_split) * query_heads + merge_head]
+                for shard in T.serial(1, (num_split + wave_size - 1) // wave_size):
+                    split = shard * wave_size + lane
+                    index = (merge_batch * num_split + split) * query_heads + merge_head
+                    weight = T.exp2((workspace[max_offset + index] - global_max) * scale)
+                    weights[wave, split] = weight
+                    total += weight * workspace[stats_offset + index]
+                for step in T.unroll(reduction_steps):
+                    distance = (active_lanes // 2) >> step
+                    peer = T.shfl_down(total, distance, wave_size)
+                    if lane < distance:
+                        total += peer
+                total = T.shfl_sync(total, 0, wave_size)
+                T.sync_warp()
 
-            T.fill(acc, 0)
-            for group in T.unroll(num_split // 8):
-                for chain in T.unroll(8):
-                    split = group * 8 + chain
+                T.fill(acc, 0)
+                for band in T.serial(num_split // (chains * groups_per_band)):
+                    for group in T.unroll(groups_per_band):
+                        for chain in T.unroll(chains):
+                            split = (band * groups_per_band + group) * chains + chain
+                            for vec in T.vectorized(2):
+                                acc[chain, vec] += workspace[((merge_batch * num_split + split) * query_heads + merge_head) * dim + tx * 2 + vec] * weights[wave, split]
+                T.fill(result, 0)
+                for chain in T.unroll(chains):
                     for vec in T.vectorized(2):
-                        acc[chain, vec] += workspace[((merge_batch * num_split + split) * heads + merge_head) * dim + tx * 2 + vec] * weights[wave, split]
-            T.fill(result, 0)
-            for chain in T.unroll(8):
+                        result[vec] += acc[chain, vec]
                 for vec in T.vectorized(2):
-                    result[vec] += acc[chain, vec]
-            for vec in T.vectorized(2):
-                output[merge_batch, merge_head, tx * 2 + vec] = result[vec] / total
+                    output[merge_batch, merge_head, tx * 2 + vec] = result[vec] / total
 
     return main
