@@ -38,17 +38,29 @@ ax.set(xticks=range(6),xticklabels=[f"{k}K" for k in lengths],xlabel="KV length 
 ax.legend(frameon=False,loc="upper left",ncol=3)
 save(fig,"flashmla-maca-small")
 
-fig, panels = plt.subplots(1,2,figsize=(10,4.2),sharey=True,layout="constrained")
-lengths = [1,2,4,8,16]
-for ax,batch in zip(panels,(64,128)):
+fig, panels = plt.subplots(1, 2, figsize=(11, 4.8), sharey=True)
+fig.subplots_adjust(top=.76, bottom=.14, left=.07, right=.99, wspace=.09)
+fig.suptitle("Dense MLA decode on MetaX C500", fontsize=16, y=.98)
+lengths = [1, 2, 4, 8, 16]
+series = [
+    ("dense", "TileLang-MetaX dense", "#627da9", "//"),
+    ("default", "C500 dense (default)", "#00746e", ""),
+    ("paged_native", "FlashMLA (prepacked)", "#ba681e", ".."),
+]
+width = .27
+for ax, batch in zip(panels, (64, 128)):
     base(ax)
-    for name,label,color,mark in [('dense','TileLang-MetaX dense','#536b9a','s'),
-                                  ('default','C500 dense (default)','#00746e','o'),
-                                  ('paged_native','FlashMLA (prepacked)','#b55c14','^')]:
-        vals=[2*batch*128*k*1024*(576+512)/(wall(batch,128,k*1024,name)*1e6) for k in lengths]
-        ax.plot(range(5),vals,label=label,marker=mark,color=color,lw=2,ms=6)
-    ax.set(title=f"Batch {batch}",xticks=range(5),xticklabels=[f"{k}K" for k in lengths],xlabel="KV length (tokens)",ylim=(0,None))
+    for index, (name, label, color, hatch) in enumerate(series):
+        values = [2 * batch * 128 * k * 1024 * (576 + 512) /
+                  (wall(batch, 128, k * 1024, name) * 1e6) for k in lengths]
+        bars = ax.bar([i + (index - 1) * width for i in range(5)], values,
+                      width=width, label=label, color=color, hatch=hatch,
+                      edgecolor="white", linewidth=.55)
+        ax.bar_label(bars, fmt="%.1f", fontsize=8, padding=2)
+    ax.set(title=f"Batch size = {batch}", xticks=range(5),
+           xticklabels=[f"{k}K" for k in lengths], xlabel="KV context length (tokens)",
+           ylim=(0, 76))
 panels[0].set_ylabel("Effective throughput (TFLOP/s)")
 handles, labels = panels[0].get_legend_handles_labels()
-fig.legend(handles,labels,loc="outside upper center",ncol=3,frameon=False)
-save(fig,"flashmla-maca")
+fig.legend(handles, labels, loc="upper center", bbox_to_anchor=(.5,.93), ncol=3, frameon=False)
+save(fig, "flashmla-maca")
