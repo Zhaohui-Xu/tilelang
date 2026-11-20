@@ -2,6 +2,8 @@
 
 This example implements single-token dense MLA with contiguous FP16 inputs, one KV head, 512 latent columns and 64 positional columns. Compile with `mla_decode_maca(batch, kv_length, query_heads=16)`, then pass Q, positional Q, KV, positional K and a preallocated output to the callable. Their shapes are `[B,H,512]`, `[B,H,64]`, `[B,N,1,512]`, `[B,N,1,64]` and `[B,H,512]`. Call `.contiguous()` after a device or layout conversion. On the tested MACA stack, a device conversion could leave KV with noncontiguous strides. H must be divisible by 16.
 
+On a 50% MetaX C500 slice, the default kernel reduced full-call wall latency from **92.24 to 45.10 µs** at batch 1, 16 heads and 8K tokens, and from **33.64 to 11.67 ms** at batch 128, 128 heads and 16K tokens. Across the 22 workloads below, speedup over the tuned TileLang-MetaX dense example ranged from **1.43× to 2.88×**. The native paged FlashMLA call was faster on all ten large-batch workloads with a prepacked cache.
+
 ## C500 schedule
 
 A block packs the latent and positional columns for one score GEMM. The value product and denominator reuse the same FP16 probability fragment. Partial tiles mask padded logits, and the FP32 split maxima, sums and numerators retain range during normalization.
