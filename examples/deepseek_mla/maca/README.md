@@ -31,6 +31,10 @@ python benchmark_mla_decode_maca.py --kv-length 8192 --baseline-splits 128 --see
 
 These are medians for the default factory on a 50% C500 slice (32000 MiB), compared with the [TileLang-MetaX dense example](https://github.com/tile-ai/tilelang-metax/blob/90d49f353ec88bd0d346474f143003d865dd3b79/examples/deepseek_mla/example_mla_decode.py). H=16. The baseline uses a 32-key, 16-head tile and its best measured power-of-two split count. Six alternating batches used 200 warmups and 2000 measured calls each, including output allocation and all launches.
 
+![Default C500 dense MLA wall speedup over the tuned dense baseline at 12 measured small-batch shapes](../figures/flashmla-maca-small.png)
+
+Each marker is a measured shape. Speedup is the median baseline wall time divided by the median C500 wall time.
+
 | Batch | KV | C500 splits | Baseline splits | C500 wall (µs) | Baseline wall (µs) | Speedup |
 |---:|---:|---:|---:|---:|---:|---:|
 | 1 | 2048 | 64 | 64 | 25.01 | 35.84 | 1.43× |
@@ -49,6 +53,10 @@ These are medians for the default factory on a 50% C500 slice (32000 MiB), compa
 ## Large-batch decode with 128 heads
 
 The following C500 cases use the nominal batch, head count and lengths from the [AMD example](../amd), with uniform lengths and dense FP16 inputs. The AMD AITER benchmark driver uses BF16 and varies lengths within each batch. All figures in this table were measured on C500. For the dense baseline we screened power-of-two splits at head tile 16 and key tile 32. We then checked feasible head tiles 16/32/64 and key tiles 16/32 with splits 1, 4, 8 and the earlier winner. The fastest measured dense configuration for these ten rows was head tile 16, key tile 32 and one split. The optional FlashMLA column times its native paged call with Q, KV, identity page tables and scheduler metadata prepared in advance. The call also produces LSE. Measurements used six interleaved batches with five warmups and 30 measured calls each.
+
+![Effective throughput on C500 for the dense baseline, the default kernel and native prepacked FlashMLA at batch 64 and 128](../figures/flashmla-maca.png)
+
+Effective TFLOP/s counts the score and value products as `2 × B × H × N × (576 + 512)` operations, following the AMD TileLang example. Each point divides that count by the median full-call wall time. Packing and scheduling metadata for the native paged series are prepared beforehand.
 
 | Batch | KV | Default head tile / splits | C500 wall (µs) | Dense baseline wall (µs) | Dense speedup | Native paged FlashMLA wall (µs) |
 |---:|---:|---:|---:|---:|---:|---:|
