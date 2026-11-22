@@ -27,3 +27,12 @@
 拟在 `examples/deepseek_mla/maca/` 提交独立的 C500 MLA decode kernel、对拍和 benchmark 入口、支持范围与复现说明，目录结构参考 [AMD MLA 示例](https://github.com/tile-ai/tilelang/tree/main/examples/deepseek_mla/amd)。首个对照用 C500 的 8K 固定工况，比较发布候选与现有 MACA 实现的默认配置和合理 Split-KV 配置。通过后扩到 2K／4K，再按支持范围决定是否加更宽的 head 配置。PR 的性能表采用此次同卡、同输入、同软件栈的结果。
 
 比赛阶段的原始证据保存在项目本地，其中 A275 的配对实测和 OJ 提交 159816 对应正向结果，A284 对应指令精简的负向结果，A280 对应时间线，A227／A230 对应裁剪的数值反证。这里保留结论和边界，供后续写代码、测试和 PR 说明时参考。
+
+## 2026-11-23 开源整理进展
+
+上文的逐长度恢复计划是比赛结束后的历史阶段。现在已完成参数化 C500 MLA 示例及两套软件栈的独立实卡验收，各自保留代码、README、原始计时和图：
+
+- [旧栈验证版（6e71b2a）](https://github.com/Zhaohui-Xu/tilelang/tree/6e71b2aa09825ba1f9fbfe50823f9d7ae978a49e/examples/deepseek_mla/maca)：使用 TileLang-MetaX f549117c。
+- [Dev 适配版（f1f283ab）](https://github.com/Zhaohui-Xu/tilelang/tree/f1f283ababe3d26f17f5f9855827a1f5961cdfd7/examples/deepseek_mla/maca)：使用 TileLang-MetaX dev90d49f35，补齐 MACA 方言接口和自动化正确性测试。
+
+两版均有 22 个形状的三方完整调用比较。Dev 版对照沿用旧栈筛选后保存的配置，未在新编译器上重新调优；绝对延迟比旧栈上升，原因尚未确定。跨软件栈的相对加速比不能直接作为算法改进量。当前拟向 TileLang-MetaX 的 dev 分支贡献，维护者尚未审阅。
