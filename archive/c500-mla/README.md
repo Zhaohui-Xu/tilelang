@@ -1,13 +1,22 @@
 # C500 MLA 竞赛实现恢复
 
-本目录用于在准备 TileLang 主仓 PR 之前复现比赛收益。环境为 C500、PyTorch `2.8.0+metax3.7.1.3`、TileLang-MetaX `f549117c`。在加载 MACA SDK 和已构建的 TileLang 后，将本目录加入 Python 模块搜索路径。
+## 当前版本入口（2026-11-23）
+
+本目录中的候选和结论保留其历史环境与适用范围。当前两个完整公开示例分别固定保存为：
+
+- [旧栈验证版：6e71b2a](https://github.com/Zhaohui-Xu/tilelang/tree/6e71b2aa09825ba1f9fbfe50823f9d7ae978a49e/examples/deepseek_mla/maca)，对应 TileLang-MetaX f549117c。
+- [Dev 适配版：f1f283ab](https://github.com/Zhaohui-Xu/tilelang/tree/f1f283ababe3d26f17f5f9855827a1f5961cdfd7/examples/deepseek_mla/maca)，对应 TileLang-MetaX dev90d49f35。
+
+两版各有 README、原始性能 JSON 和图，不混用跨环境结果。当前提交目标是子仓库 dev；此处的历史比赛得分不代表最新通用实现的正确性或性能。
+
+本目录保留比赛实现恢复与通用化过程的历史记录。环境为 C500、PyTorch `2.8.0+metax3.7.1.3`、TileLang-MetaX `f549117c`。在加载 MACA SDK 和已构建的 TileLang 后，将本目录加入 Python 模块搜索路径。
 
 **竞赛 Best 固定为 A275（OJ 159816）。** 复现比赛时导入 `contest_mla.run_kernel`。验收依据为 OJ 返回源码、原始 ABI 与分支、历史六项 SPJ 回执。后续通用化从该冻结源派生，各候选单独记录。
 
 - `contest_mla.py` 保留 OJ 159816 的完整原文，SHA-256 为 `c18eb31cb42c01de9b11b61cfbb85123da3855046431329cb3eefa321a937191`。用这个入口复核历史实现。
 - `full_token_mla.py` 保留相同的 2K、4K、8K 分支，另从比赛档案 A254 的完整组合中提取 16K、32K、64K 三个 factory。提取保留装饰器和函数体。长序列按长度选择对应 factory，缓存仅含编译好的 kernel。它处理六种长度的全部 token，固定指数偏移和 FP16 部分量仍有输入范围限制。
 
-- `stable_mla.py` 是从 A275 主循环派生的稳定化候选，保留概率 fragment 对 PV 和分母的复用，使用逐行动态最大值和 FP32 分块结果。以 `from stable_mla import run_kernel` 选取此候选。各长度的同轮对照与压力用例见[稳定化实验记录](../../reports/upstream-contribution-20261106/runs/stable-best/ResultSummary.md)。
+- `stable_mla.py` 是从 A275 主循环派生的稳定化候选，保留概率 fragment 对 PV 和分母的复用，使用逐行动态最大值和 FP32 分块结果。以 `from stable_mla import run_kernel` 选取此候选。各长度的同轮对照与压力用例见[稳定化实验记录](stable-best/ResultSummary.md)。
 
 三个入口均按比赛 ABI 将结果写入预先提供的输出。调用示例中的 `q`、`q_pe`、`kv`、`k_pe` 是同一 C500 上的连续 FP16 张量；输出和 `q` 同形，`heads=16`、`kv_heads=1`、`dim=512`、`pe_dim=64`。本轮在 batch 1 下验证。
 
@@ -29,7 +38,7 @@ run_kernel(q, q_pe, kv, k_pe, output, batch, heads, kv_heads, kv_length, dim, q_
 | 32K | 原动态最大值与 FP16 部分输出，读取全部 16 个 tile | A254 分两组处理全部 16 个 tile |
 | 64K | 每个 split 读取 15/32 个 tile | A235R1 分四组处理全部 32 个 tile |
 
-历史 OJ 成绩归属于原提交。常规输入性能和不同输入族的完整输出误差分别记录。六种长度的速度及失败用例见[同卡实测记录](../../reports/upstream-contribution-20261106/runs/contest-recovery/ResultSummary.md)。
+历史 OJ 成绩归属于原提交。常规输入性能和不同输入族的完整输出误差分别记录。六种长度的速度及失败用例见[同卡实测记录](contest-recovery/ResultSummary.md)。
 
 ## 竞赛 Best 成绩与本地复核
 
@@ -44,7 +53,7 @@ run_kernel(q, q_pe, kv, k_pe, output, batch, heads, kv_heads, kv_length, dim, q_
 | 32K | 116 | 98 | 120.16 |
 | 64K | 109 | 99 | 正态对拍 0/100，未计时 |
 
-本地归档含各题点 SPJ 报告、输入文件名和公开形状配置。回执记录了原始评测结果；逐输入复测仍需要当时的隐藏输入及计时环境。[OJ 原始回执和源码](../../workspaces/contest-6-problem-1/experiments/runs/INT-20261020-a276-a275-oj159816-calibration-01/artifacts/metrics.json)
+本地归档含各题点 SPJ 报告、输入文件名和公开形状配置。回执记录了原始评测结果；逐输入复测仍需要当时的隐藏输入及计时环境。OJ 原始回执保存在本地比赛工作区，未包含在本公开归档中；源码见本目录的 `contest_mla.py`。
 
 ## 后续通用化的已有对照
 
