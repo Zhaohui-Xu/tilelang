@@ -26,24 +26,24 @@ The schedule selects the head tile and KV split count together to balance intra-
 
 ## Performance Evaluation
 
-Benchmarks use FP16 inputs and contiguous KV storage on a MetaX C500 instance configured with 32,000 MiB of GPU memory. The C500 default is compared with a tuned [Triton reference adapted for contiguous KV](benchmark_mla_decode_maca_triton.py) and a tuned [TileLang-MetaX dense baseline](https://github.com/tile-ai/tilelang-metax/blob/90d49f353ec88bd0d346474f143003d865dd3b79/examples/deepseek_mla/example_mla_decode.py). All results use full-call wall time.
+Benchmarks use FP16 inputs and contiguous KV storage on a MetaX C500 instance configured with 32,000 MiB of GPU memory. The C500 default is compared with a [Triton reference adapted for contiguous KV](benchmark_mla_decode_maca_triton.py) and a [TileLang-MetaX dense baseline](https://github.com/tile-ai/tilelang-metax/blob/90d49f353ec88bd0d346474f143003d865dd3b79/examples/deepseek_mla/example_mla_decode.py). All results use full-call wall time. The reference configurations were screened on the earlier `f549117c` stack and replayed here without retuning.
 
-**Large batches.** Across 10 shapes with 128 query heads, batches 64/128 and KV lengths 1K–16K, speedup is **5.49–9.50×** over the tested Triton adaptation and **1.79–2.88×** over dense. The figure shows effective throughput.
+**Large batches.** Across 10 shapes with 128 query heads, batches 64/128 and KV lengths 1K–16K, speedup is **4.55–7.38×** over the tested Triton adaptation and **2.01–3.05×** over dense. The figure shows effective throughput.
 
 ![Three-way large-batch MLA decode performance on MetaX C500](../figures/flashmla-maca.png)
 
-**Small batches.** Across 12 tested shapes with 16 query heads, batches 1/2/4 and KV lengths spanning 2K–64K, speedup is **2.18–3.37×** over the tested Triton adaptation and **1.46–2.79×** over dense. Bars are normalized to dense = 1; higher is better.
+**Small batches.** Across 12 tested shapes with 16 query heads, batches 1/2/4 and KV lengths spanning 2K–64K, speedup is **1.45–2.00×** over the tested Triton adaptation and **1.46–2.38×** over dense. Bars are normalized to dense = 1; higher is better.
 
 ![Three-way small-batch MLA decode performance on MetaX C500](../figures/flashmla-maca-small.png)
 
 <details>
 <summary>Measurement details and reproducibility</summary>
 
-The stack was TileLang-MetaX `f549117c`, PyTorch `2.8.0+metax3.7.1.3`, and Triton `3.0.0` with the MetaX backend. These figures retain the measurements from that stack. The current example uses the MACA dialect API from `dev` revision `90d49f35`; numerical and performance validation on that compiler is still pending. Workloads use single-token decode, one KV head, 512 latent dimensions and 64 positional dimensions. Five FP32-reference checks per implementation and shape passed at `atol=rtol=0.002` (330 checks total).
+The stack was TileLang-MetaX `dev` revision `90d49f35`, MACA `3.7.1.5`, PyTorch `2.8.0+metax3.7.1.3`, and Triton `3.0.0` with the MetaX backend. The kernel uses the explicit MACA dialect and was tested with the TVM FFI execution backend. Workloads use single-token decode, one KV head, 512 latent dimensions and 64 positional dimensions. Five FP32-reference checks per implementation and shape passed at `atol=rtol=0.002` (330 checks total).
 
 Reported latency is the median of six batch-average timings covering all six implementation-order permutations. Each call includes output/workspace allocation, main kernels and merge, with synchronization at batch end. JIT compilation and configuration search are excluded. Warmups/timed calls per batch are 5/30 for large batches and 200/2,000 for small batches. Effective throughput counts `2 × B × H × N × (576 + 512)` operations per call.
 
-The dense baseline uses previously screened 16-head, 32-token configurations, re-measured in this session. Triton underwent finite head/key-tile, wave-count and split screening, followed by split refinement for the selected layout. [Raw samples, selected configurations, versions and validation errors](benchmark_results.json) cover all 22 shapes.
+The dense baseline uses 16-head, 32-token configurations. The earlier screening covered dense configurations and Triton head/key tiles, wave counts and splits; this report re-measures the saved choices on the new compiler. It does not establish that these choices are optimal for the new compiler. [Raw samples, selected configurations, versions and validation errors](benchmark_results.json) cover all 22 shapes.
 
 The sGPU instance reported a 50% compute quota, best-effort scheduling and a 10 ms time slice.
 
@@ -52,7 +52,7 @@ The sGPU instance reported a 50% compute quota, best-effort scheduling and a 10 
 <details>
 <summary>How KV splitting affects the wave partition</summary>
 
-A separate experiment used a 16,000 MiB C500 sGPU instance with a reported 25% compute quota. Batch 64, 128 heads, 1K tokens, a 64-head tile and 512 threads were fixed. Changing each wave's output tile from the default `16 heads × 256 columns` to `64 heads × 64 columns` reduced full-call latency from 651 to 620 µs at four splits, but increased it from 613 to 1,070 µs at the default two splits. The two-split variant also increased compiled main-kernel private memory from 0 to 700 bytes.
+A separate experiment on the earlier `f549117c` stack used a 16,000 MiB C500 sGPU instance with a reported 25% compute quota. Batch 64, 128 heads, 1K tokens, a 64-head tile and 512 threads were fixed. Changing each wave's output tile from the default `16 heads × 256 columns` to `64 heads × 64 columns` reduced full-call latency from 651 to 620 µs at four splits, but increased it from 613 to 1,070 µs at the default two splits. The two-split variant also increased compiled main-kernel private memory from 0 to 700 bytes.
 
 </details>
 

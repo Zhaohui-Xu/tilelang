@@ -67,8 +67,8 @@ def render(records, output_dir):
         }
     )
     series = [
-        ("triton", "Triton (contiguous KV, tuned)", "#d18c37", ""),
-        ("dense", "TileLang-MetaX dense (tuned)", "#627da9", "//"),
+        ("triton", "Triton (saved config)", "#d18c37", ""),
+        ("dense", "TileLang-MetaX dense (saved config)", "#627da9", "//"),
         ("default", "C500 TileLang (default)", "#00746e", ""),
     ]
     lookup = {(r["batch"], r["heads"], r["kv_length"]): r for r in records}
@@ -108,7 +108,7 @@ def render(records, output_dir):
                 ax.axhline(1, color="#657181", linestyle="--", linewidth=0.8)
             ax.tick_params(length=0, pad=5)
             ax.set(title=f"Batch {b}", xticks=range(len(ns)), xticklabels=[f"{n // 1024}K" for n in ns])
-        axes[0].set_ylabel("Speedup over tuned TileLang dense (×)" if small else "Effective throughput (TFLOP/s)")
+        axes[0].set_ylabel("Speedup over TileLang dense (×)" if small else "Effective throughput (TFLOP/s)")
         axes[0].set_ylim(0, max(values_all) * (1.25 if small else 1.14))
         fig.supxlabel("KV length (tokens)")
         fig.suptitle("Dense MLA decode on C500 · " + ("16 heads" if small else "128 heads"), fontsize=15, y=0.98)
