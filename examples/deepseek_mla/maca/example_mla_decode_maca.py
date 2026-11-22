@@ -50,6 +50,8 @@ def mla_decode_maca(batch, kv_ctx, query_heads=16, num_split=None, head_tile=Non
     num_split = default_splits if num_split is None else num_split
     assert heads in (16, 32, 64, 128)
     kv_heads, dim, pe_dim = 1, 512, 64
+    # Two column waves cover 512 output columns. Each additional row group
+    # lets another 16 heads consume the same shared KV tile.
     row_waves = heads // 16
     assert query_heads % heads == 0
     assert 1 <= num_split <= 2048 and num_split & (num_split - 1) == 0
@@ -64,6 +66,8 @@ def mla_decode_maca(batch, kv_ctx, query_heads=16, num_split=None, head_tile=Non
     active_lanes = min(num_split, wave_size)
     reduction_steps = active_lanes.bit_length() - 1
     groups_per_band = min(8, num_split // chains)
+    # At 64 heads, the packed FP16 Q tile alone is 72 KiB. A fragment
+    # keeps that tile out of shared memory on the wide schedules.
     alloc_query = T.alloc_shared if heads == 16 else T.alloc_fragment
     stats_offset = batch * num_split * query_heads * dim
     max_offset = stats_offset + batch * num_split * query_heads
@@ -202,7 +206,8 @@ def mla_decode_maca(batch, kv_ctx, query_heads=16, num_split=None, head_tile=Non
                                     j,
                                     dtype="float32x4",
                                 )
-                            # Reuse the probability fragment to accumulate the denominator.
+                            # Multiplying the same P fragment by ones adds its row sums
+                            # without a second load from shared memory.
                             T.tvm_mfma(
                                 pv_mma.mma_suffix,
                                 "row",
