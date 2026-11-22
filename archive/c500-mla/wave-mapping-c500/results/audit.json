@@ -1,0 +1,62 @@
+{
+  "paired": {
+    "jit_main": {
+      "mtreg_count": 248,
+      "private_memory_size": 0,
+      "share_memory_size": 0,
+      "streg_count": 20
+    },
+    "jit_merge": {
+      "mtreg_count": 19,
+      "private_memory_size": 0,
+      "share_memory_size": 0,
+      "streg_count": 18
+    },
+    "dynamic_shared_bytes": 45312,
+    "separate_listing_metadata": {
+      "mtreg_count": 248,
+      "private_memory_size": 0,
+      "share_memory_size": 0
+    },
+    "assembly_spill_sites": 0,
+    "assembly_reload_sites": 0,
+    "assembly_mfma_sites": 424,
+    "merge_source_sha256": "522a95dd481903e59ff325894aee3b41a6a3937f3f9086da23e516becea6f8b9"
+  },
+  "column": {
+    "jit_main": {
+      "mtreg_count": 256,
+      "private_memory_size": 12,
+      "share_memory_size": 0,
+      "streg_count": 38
+    },
+    "jit_merge": {
+      "mtreg_count": 19,
+      "private_memory_size": 0,
+      "share_memory_size": 0,
+      "streg_count": 18
+    },
+    "dynamic_shared_bytes": 45312,
+    "separate_listing_metadata": {
+      "mtreg_count": 256,
+      "private_memory_size": 28,
+      "share_memory_size": 0
+    },
+    "assembly_spill_sites": 6,
+    "assembly_reload_sites": 6,
+    "assembly_mfma_sites": 608,
+    "merge_source_sha256": "522a95dd481903e59ff325894aee3b41a6a3937f3f9086da23e516becea6f8b9"
+  },
+  "wall": {
+    "paired_us": 650.5637832257586,
+    "column_us": 619.9630666136121,
+    "latency_change_percent": -4.70372274036156,
+    "column_wins": 6
+  },
+  "event": {
+    "paired_us": 646.8053181966145,
+    "column_us": 616.5589332580566,
+    "latency_change_percent": -4.676273383603135,
+    "column_wins": 6
+  }
+}
