@@ -60,7 +60,7 @@ A separate experiment used a 16,000 MiB C500 sGPU instance with a reported 25% c
 
 For hardware rental, see the [Moark compute marketplace](https://moark.com/compute). This example requires a MetaX C500 instance with a compatible MACA software stack.
 
-This example depends on the external TileLang-MetaX backend (`tilelang.maca`, `target="maca"`). Use its MACA build and matching PyTorch-MACA (tested with TileLang-MetaX `f549117c` and PyTorch `2.8.0+metax3.7.1.3`). Set `TILELANG_METAX_ROOT` to the baseline checkout linked above. [Backend build instructions](https://github.com/tile-ai/tilelang-metax)
+This example uses [TileLang’s MetaX MACA ecosystem backend](../../../README.md#platform-and-backend-support), maintained in TileLang-MetaX (`tilelang.maca`, `target="maca"`). Use its MACA build and matching PyTorch-MACA (tested with TileLang-MetaX `f549117c` and PyTorch `2.8.0+metax3.7.1.3`); the standard TileLang release wheel does not include this backend. [Backend build instructions](https://github.com/tile-ai/tilelang-metax)
 
 <details>
 <summary>One-time path setup for a source build</summary>
@@ -74,7 +74,7 @@ export PYTHONPATH="/path/to/built/tilelang-metax${PYTHONPATH:+:$PYTHONPATH}"
 export TILELANG_METAX_ROOT=/path/to/baseline/tilelang-metax
 ```
 
-`PYTHONPATH` selects the built compiler backend; `TILELANG_METAX_ROOT` selects the reference implementation used for comparison. They can point to different checkouts.
+`PYTHONPATH` selects the built compiler backend; `TILELANG_METAX_ROOT` selects the reference implementation used for comparison. They can point to different checkouts. For the baseline checkout, use revision `90d49f353ec88bd0d346474f143003d865dd3b79`; it supplies Python source and does not need a separate build. Report mode verifies the baseline source hash.
 
 </details>
 
