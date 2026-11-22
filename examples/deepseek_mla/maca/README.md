@@ -2,96 +2,127 @@
 
 Building on TileLang’s MLA decode example for NVIDIA Hopper, we present an optimized implementation for MetaX C500 GPUs. We examine how the C500’s matrix instructions and shared memory capacity shape two design choices: how waves divide the output and how many query heads can share a KV tile. [Hopper implementation](../README.md#implementation)
 
-## Architectural considerations and optimization strategies
+## Architectural Considerations and Optimization Strategies
 
-**Partition the accumulator across waves.** The Hopper example uses a WGMMA path with a minimum of 64 rows per instruction. In our C500 value product, two 64-lane waves each accumulate 256 output columns for the same 16 heads through a sequence of MFMA instructions. Four such pairs can process 64 heads in one block, all reading the same shared KV tile.
+1. **Matrix instruction granularity.** The Hopper reference implementation uses a WGMMA path with a minimum M dimension of 64 (query heads in single-token decode) across a 128-thread warpgroup, whereas C500’s built-in FP16 MFMA operates on `16×16×16` tiles within a 64-lane wave. For a fixed output width, assigning more query heads to a warpgroup or wave increases the output accumulator and normalization state it holds, while narrow head blocks limit KV reuse. On C500, pairing two 64-lane waves across the output columns and adding wave pairs along query heads expands block-level KV reuse while keeping each wave’s output-tile dimensions and assigned head count fixed as the head tile widens.
 
-**Choose where Q lives.** A 32-token FP16 key tile occupies 36 KiB at width 576. Widening the head tile from 16 to 64 lets four times as many heads reuse that key tile, but also grows Q from 18 to 72 KiB. Staging both wide tiles in shared memory would require 108 KiB before the softmax buffers. The kernel selects Q storage by head tile size.
+2. **Shared memory allocation.** C500 provides a maximum of 64 KiB of shared memory per block (including opt-in), compared with H100’s 227 KiB per-block opt-in limit. Because MLA’s query heads share a single KV head, widening the head tile causes Q storage to grow with the head count while the KV tile size stays fixed. Staging both operands in shared memory therefore limits head-tile width and KV reuse. Keeping KV in shared memory while placing the combined Q tile in register fragments on wider schedules moves the growing query storage out of the per-block shared-memory budget, at the cost of register storage. [H100 resource limits](https://docs.nvidia.com/cuda/hopper-tuning-guide/index.html#occupancy) · [Dense baseline](https://github.com/tile-ai/tilelang-metax/blob/90d49f353ec88bd0d346474f143003d865dd3b79/examples/deepseek_mla/example_mla_decode.py)
 
-```python
-alloc_query = T.alloc_shared if heads == 16 else T.alloc_fragment
-```
+   Baseline
 
-The wider schedule keeps Q in a fragment. Each wave also reuses its softmax probability fragment for both the value product and the denominator. [Kernel source](example_mla_decode_maca.py)
+   ```python
+   Q_shared = T.alloc_shared([block_H, dim], dtype)
+   Q_pe_shared = T.alloc_shared([block_H, pe_dim], dtype)
+   ```
 
-**Balance KV reuse against parallelism.** A wider head tile leaves fewer independent head groups. Splitting the KV sequence restores parallel work, but each additional split writes FP32 partials for a merge kernel. At batch 64, 128 heads and 1K tokens, the 16-head schedule with eight splits took **1248 µs** per complete call. The 64-head schedule with four splits took **648 µs** and halved the partial workspace from 128.5 to 64.25 MiB. The default schedule uses the number of independent head groups and key tiles to choose the head width and split count together.
+   Query allocation for wider head tiles
 
-## Performance evaluation
+   ```python
+   alloc_query = T.alloc_shared if heads == 16 else T.alloc_fragment
+   q_tile = alloc_query([heads, dim + pe_dim], dtype)
+   ```
 
-We measured full-call wall latency on a **50% C500 slice (32000 MiB)**. Each call includes output allocation and all kernel launches after compilation. The tables give median latency, and the figures show the corresponding throughput or speedup over the tuned baseline. [TileLang-MetaX baseline](https://github.com/tile-ai/tilelang-metax/blob/90d49f353ec88bd0d346474f143003d865dd3b79/examples/deepseek_mla/example_mla_decode.py).
+The schedule selects the head tile and KV split count together to balance intra-block KV reuse, block parallelism, and the cost of merging partial results.
 
-**Large batches.** At batch sizes 64 and 128 with 128 query heads, the default C500 kernel achieved **1.80×–2.88×** speedup over the tuned dense baseline. These shapes follow the AMD example. Our inputs use FP16 and all sequences in a batch have the same KV length. [AMD example](../amd)
+## Performance Evaluation
 
-![Effective throughput on C500 at batch 64 and 128](../figures/flashmla-maca.png)
+Benchmarks use FP16 inputs and contiguous KV storage on a MetaX C500 instance configured with 32,000 MiB of GPU memory. The C500 default is compared with a tuned [Triton reference adapted for contiguous KV](benchmark_mla_decode_maca_triton.py) and a tuned [TileLang-MetaX dense baseline](https://github.com/tile-ai/tilelang-metax/blob/90d49f353ec88bd0d346474f143003d865dd3b79/examples/deepseek_mla/example_mla_decode.py). All results use full-call wall time.
 
-Throughput counts `2 × B × H × N × (576 + 512)` operations for the score and value products. Each implementation ran six interleaved batches with five warmups and 30 measured calls per batch.
+**Large batches.** Across 10 shapes with 128 query heads, batches 64/128 and KV lengths 1K–16K, speedup is **5.49–9.50×** over the tested Triton adaptation and **1.79–2.88×** over dense. The figure shows effective throughput.
 
-<details>
-<summary>Per-shape wall latency and configuration</summary>
+![Three-way large-batch MLA decode performance on MetaX C500](../figures/flashmla-maca.png)
 
-The dense baseline used a 16-head, 32-token tile and one split at all ten shapes after screening head tiles, key tiles and split counts.
+**Small batches.** Across 12 tested shapes with 16 query heads, batches 1/2/4 and KV lengths spanning 2K–64K, speedup is **2.18–3.37×** over the tested Triton adaptation and **1.46–2.79×** over dense. Bars are normalized to dense = 1; higher is better.
 
-| Batch |    KV | Default head tile / splits | C500 wall (µs) | Dense baseline wall (µs) | Dense speedup |
-| ----: | ----: | -------------------------: | --------------: | ------------------------: | ------------: |
-|    64 |  1024 |                     64 / 2 |          610.99 |                   1098.53 |        1.80× |
-|    64 |  2048 |                     64 / 4 |         1033.73 |                   2150.67 |        2.08× |
-|    64 |  4096 |                     64 / 4 |         1771.24 |                   4248.83 |        2.40× |
-|    64 |  8192 |                     64 / 4 |         3240.63 |                   8436.91 |        2.60× |
-|    64 | 16384 |                     64 / 4 |         6187.32 |                  16849.09 |        2.72× |
-|   128 |  1024 |                     64 / 1 |         1020.29 |                   2187.06 |        2.14× |
-|   128 |  2048 |                     64 / 2 |         1735.53 |                   4285.20 |        2.47× |
-|   128 |  4096 |                     64 / 2 |         3144.87 |                   8474.82 |        2.69× |
-|   128 |  8192 |                     64 / 2 |         5985.78 |                  16862.73 |        2.82× |
-|   128 | 16384 |                     64 / 2 |        11671.82 |                  33638.07 |        2.88× |
-
-</details>
-
-**Small batches.** Across 12 shapes with 16 query heads, wall speedup was **1.43×–2.79×**. At batch 1 and 8K tokens, latency fell from **92.24 to 45.10 µs**. Each marker uses six alternating batches of 200 warmups and 2000 measured calls.
-
-![Small-batch wall speedup over the tuned dense baseline](../figures/flashmla-maca-small.png)
+![Three-way small-batch MLA decode performance on MetaX C500](../figures/flashmla-maca-small.png)
 
 <details>
-<summary>Per-shape wall latency and configuration</summary>
+<summary>Measurement details and reproducibility</summary>
 
-| Batch |    KV | C500 splits | Baseline splits | C500 wall (µs) | Baseline wall (µs) | Speedup |
-| ----: | ----: | ----------: | --------------: | --------------: | ------------------: | ------: |
-|     1 |  2048 |          64 |              64 |           25.01 |               35.84 |  1.43× |
-|     1 |  4096 |          64 |              64 |           31.42 |               48.12 |  1.53× |
-|     1 |  8192 |          64 |             128 |           45.10 |               92.24 |  2.05× |
-|     1 | 16384 |          64 |             256 |           78.75 |              157.47 |  2.00× |
-|     1 | 32768 |         256 |             512 |          123.80 |              284.62 |  2.30× |
-|     1 | 65536 |         512 |            1024 |          201.91 |              563.88 |  2.79× |
-|     2 |  2048 |          32 |              32 |           30.00 |               44.42 |  1.48× |
-|     2 |  8192 |          32 |             128 |           77.79 |              131.23 |  1.69× |
-|     2 | 32768 |         256 |             512 |          188.08 |              441.83 |  2.35× |
-|     4 |  2048 |          16 |              32 |           42.75 |               74.00 |  1.73× |
-|     4 |  8192 |          64 |             128 |          112.94 |              192.74 |  1.71× |
-|     4 | 32768 |         256 |             512 |          339.61 |              739.37 |  2.18× |
+The stack was TileLang-MetaX `f549117c`, PyTorch `2.8.0+metax3.7.1.3`, and Triton `3.0.0` with the MetaX backend. Workloads use single-token decode, one KV head, 512 latent dimensions and 64 positional dimensions. Five FP32-reference checks per implementation and shape passed at `atol=rtol=0.002` (330 checks total).
+
+Reported latency is the median of six batch-average timings covering all six implementation-order permutations. Each call includes output/workspace allocation, main kernels and merge, with synchronization at batch end. JIT compilation and configuration search are excluded. Warmups/timed calls per batch are 5/30 for large batches and 200/2,000 for small batches. Effective throughput counts `2 × B × H × N × (576 + 512)` operations per call.
+
+The dense baseline uses previously screened 16-head, 32-token configurations, re-measured in this session. Triton underwent finite head/key-tile, wave-count and split screening, followed by split refinement for the selected layout. [Raw samples, selected configurations, versions and validation errors](benchmark_results.json) cover all 22 shapes.
+
+The sGPU instance reported a 50% compute quota, best-effort scheduling and a 10 ms time slice.
 
 </details>
 
 <details>
 <summary>How KV splitting affects the wave partition</summary>
 
-On a separate 25% C500 slice, we held batch 64, 128 heads, 1K tokens, a 64-head tile and 512 threads per block fixed. With four KV splits, changing each wave's output from 16 heads × 256 columns to 64 heads × 64 columns reduced full-call wall latency from 651 to 620 µs. At the default two splits, the same change increased latency from 613 to 1070 µs. The compiled main kernel's private memory rose from 0 to 700 bytes in the two-split comparison.
+A separate experiment used a 16,000 MiB C500 sGPU instance with a reported 25% compute quota. Batch 64, 128 heads, 1K tokens, a 64-head tile and 512 threads were fixed. Changing each wave's output tile from the default `16 heads × 256 columns` to `64 heads × 64 columns` reduced full-call latency from 651 to 620 µs at four splits, but increased it from 613 to 1,070 µs at the default two splits. The two-split variant also increased compiled main-kernel private memory from 0 to 700 bytes.
 
 </details>
 
 ## Running the example
 
-Use a TileLang-MetaX MACA build and matching PyTorch-MACA. We tested `f549117c` with PyTorch `2.8.0+metax3.7.1.3`. For a source build, put the backend checkout on `PYTHONPATH` and expose the MACA SDK. Set `TILELANG_METAX_ROOT` to the baseline checkout linked above. [Backend repository](https://github.com/tile-ai/tilelang-metax)
+For hardware rental, see the [Moark compute marketplace](https://moark.com/compute). This example requires a MetaX C500 instance with a compatible MACA software stack.
 
-Compile with `mla_decode_maca(B, N, query_heads=H)`. Pass contiguous FP16 tensors for Q, positional Q, KV, positional K and output with shapes `[B,H,512]`, `[B,H,64]`, `[B,N,1,512]`, `[B,N,1,64]` and `[B,H,512]`. H must be divisible by 16 and N ranges from 1 to 65536. Call `.contiguous()` after device or layout conversion.
+This example depends on the external TileLang-MetaX backend (`tilelang.maca`, `target="maca"`). Use its MACA build and matching PyTorch-MACA (tested with TileLang-MetaX `f549117c` and PyTorch `2.8.0+metax3.7.1.3`). Set `TILELANG_METAX_ROOT` to the baseline checkout linked above. [Backend build instructions](https://github.com/tile-ai/tilelang-metax)
 
-Check a partial KV tile against the FP32 reference, then compare complete calls at an aligned length. The 18-shape validation matrix passed 198 full-output checks at `atol=rtol=0.002`.
+<details>
+<summary>One-time path setup for a source build</summary>
+
+Activate the MACA Python environment and replace the paths below with your installed SDK, built backend and baseline checkout:
 
 ```bash
-python benchmark_mla_decode_maca.py --kv-length 2049 --batch-size 2 --check-only
+export MACA_PATH=/path/to/maca
+export PATH="$MACA_PATH/mxgpu_llvm/bin:$PATH"
+export PYTHONPATH="/path/to/built/tilelang-metax${PYTHONPATH:+:$PYTHONPATH}"
+export TILELANG_METAX_ROOT=/path/to/baseline/tilelang-metax
 ```
+
+`PYTHONPATH` selects the built compiler backend; `TILELANG_METAX_ROOT` selects the reference implementation used for comparison. They can point to different checkouts.
+
+</details>
+
+From this directory, run the correctness smoke test with one command:
+
+```bash
+python benchmark_mla_decode_maca.py
+```
+
+The default smoke preset checks B1/H16 with 2,049 KV tokens, including a partial final tile, against the FP32 reference. It prints a `PASS` summary and JSON results. The first invocation includes compilation.
+
+For the recorded B1/H16/2K three-way comparison, also use a matching MetaX Triton installation and set `TILELANG_METAX_ROOT` to the baseline checkout above:
+
+```bash
+python benchmark_mla_decode_maca.py --preset compare
+```
+
+This preset loads the dense and Triton configurations from `benchmark_results.json`, checks all three outputs, and reports full-call latency. An explicit `--baseline-file /path/to/example_mla_decode.py` overrides the environment variable.
+
+To rerun all 22 report shapes on a 32 GB C500 instance, use the same dependencies and the pinned dense baseline linked above:
+
+```bash
+python benchmark_mla_decode_maca.py --preset report --output results/c500-report.json
+```
+
+Report mode reuses the published configurations without tuning. It generates FP16 inputs on the GPU with seed 9123, repeats the five recorded validation cases per implementation, and uses six implementation orders with the recorded warmup/iteration counts. It writes fresh JSON and CSV files, including the current environment and source hashes. Existing outputs are not overwritten; partial results are retained if a run fails or is interrupted. To check report mode on one shape, add `--report-shapes 1x16x2048`; subset runs cannot generate the full report charts.
+
+Regenerate both charts from the published measurements without a GPU (requires Matplotlib):
+
+```bash
+python plot_mla_decode_maca.py --output-dir results/published-plots
+```
+
+Or plot a completed new report:
+
+```bash
+python plot_mla_decode_maca.py --input results/c500-report.json --output-dir results/new-plots
+```
+
+The plotter exports PNG/PDF figures, a summary CSV and speedup ranges. It rejects missing shapes, incomplete checks and invalid timing samples. The smoke, compare and custom-shape commands use the original CPU-generated inputs; report mode follows the published GPU-input protocol.
+
+For custom shapes, omit the preset and pass the desired parameters:
 
 ```bash
 python benchmark_mla_decode_maca.py --kv-length 8192 --baseline-splits 128 --seeds 100 \
   --baseline-file "$TILELANG_METAX_ROOT/examples/deepseek_mla/example_mla_decode.py"
 ```
+
+For application use, compile with `mla_decode_maca(B, N, query_heads=H)` and call the returned kernel with `(q, q_pe, kv, k_pe, output)`. Pass contiguous FP16 tensors with shapes `[B,H,512]`, `[B,H,64]`, `[B,N,1,512]`, `[B,N,1,64]` and `[B,H,512]`, respectively. H must be divisible by 16 and N ranges from 1 to 65536. Call `.contiguous()` after device or layout conversion.
 
 Use `--tune` to screen head tiles and split counts or `--tune-splits` to fix the head tile. The CLI reports the selected schedule, reference error and event and wall samples.

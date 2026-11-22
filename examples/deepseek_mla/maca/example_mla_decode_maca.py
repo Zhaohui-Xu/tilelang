@@ -12,6 +12,9 @@ def default_schedule(batch, query_heads, kv_ctx):
     """Select a head tile and a power-of-two split count for a C500 slice."""
     if batch < 1 or query_heads < 16 or query_heads % 16 or not 1 <= kv_ctx <= 65536:
         raise ValueError("expected a positive batch, query heads divisible by 16 and KV length in [1, 65536]")
+    # Head tiling increases KV reuse but reduces independent head groups;
+    # KV splits recover parallelism at the cost of partial-state traffic and merge.
+    # The thresholds below are measured defaults, not hardware limits.
     tiles = (kv_ctx + 31) // 32
     max_splits = 1 << (tiles.bit_length() - 1)
 
@@ -46,6 +49,7 @@ def default_schedule(batch, query_heads, kv_ctx):
 @tilelang.jit(target="maca", pass_configs={tilelang.PassConfigKey.TL_ENABLE_FAST_MATH: True})
 def mla_decode_maca(batch, kv_ctx, query_heads=16, num_split=None, head_tile=None):
     default_heads, default_splits = default_schedule(batch, query_heads, kv_ctx)
+    # `heads` is the per-block query-head tile, not the total query head count.
     heads = default_heads if head_tile is None else head_tile
     num_split = default_splits if num_split is None else num_split
     assert heads in (16, 32, 64, 128)
@@ -61,14 +65,18 @@ def mla_decode_maca(batch, kv_ctx, query_heads=16, num_split=None, head_tile=Non
     num_tiles = (kv_ctx + block_n - 1) // block_n
     base_tiles, extra = divmod(num_tiles, num_split)
     max_tiles = base_tiles + int(extra > 0)
+    # Bound unrolled KV tiles and independent merge chains in generated code.
     group_tiles = min(max_tiles, 8)
     chains = min(8, num_split)
     active_lanes = min(num_split, wave_size)
     reduction_steps = active_lanes.bit_length() - 1
     groups_per_band = min(8, num_split // chains)
     # At 64 heads, the packed FP16 Q tile alone is 72 KiB. A fragment
-    # keeps that tile out of shared memory on the wide schedules.
+    # keeps that tile out of shared memory on the wide schedules, trading shared
+    # capacity for registers. It does not guarantee lower total register usage.
     alloc_query = T.alloc_shared if heads == 16 else T.alloc_fragment
+    # FP32 split state is packed as [partial PV: B,S,H,D], [sum P: B,S,H],
+    # then [max QK: B,S,H]. Normalize after merging, not before storing partials.
     stats_offset = batch * num_split * query_heads * dim
     max_offset = stats_offset + batch * num_split * query_heads
     workspace_size = batch * num_split * query_heads * (dim + 2) if num_split > 1 else 1
@@ -123,6 +131,8 @@ def mla_decode_maca(batch, kv_ctx, query_heads=16, num_split=None, head_tile=Non
             running_max = T.alloc_fragment([heads], accum_dtype)
             previous_max = T.alloc_fragment([heads], accum_dtype)
             rescale = T.alloc_shared([heads], accum_dtype)
+            # A wave owns 16 x 256 output elements: 4096 / 64 lanes = 64 per lane.
+            # Operand and accumulator fragments follow the emitter's lane mapping.
             output_acc = T.alloc_local([64], accum_dtype)
             pv_a = T.alloc_local([4], dtype)
             pv_b = T.alloc_local([64], dtype)
@@ -166,6 +176,8 @@ def mla_decode_maca(batch, kv_ctx, query_heads=16, num_split=None, head_tile=Non
                             for h, n in T.Parallel(heads, block_n):
                                 if kv_start + n >= kv_ctx:
                                     score[h, n] = -T.infinity(accum_dtype)
+                        # Online softmax: when the maximum grows, rescale BOTH
+                        # the accumulated PV and sum(P) before adding the next tile.
                         if max_tiles > 1:
                             T.copy(running_max, previous_max)
                         T.reduce_max(score, running_max, dim=1, clear=True)
@@ -207,7 +219,8 @@ def mla_decode_maca(batch, kv_ctx, query_heads=16, num_split=None, head_tile=Non
                                     dtype="float32x4",
                                 )
                             # Multiplying the same P fragment by ones adds its row sums
-                            # without a second load from shared memory.
+                            # without a second load from shared memory. The denominator
+                            # therefore uses the same rounded FP16 P values as PV.
                             T.tvm_mfma(
                                 pv_mma.mma_suffix,
                                 "row",
@@ -223,6 +236,8 @@ def mla_decode_maca(batch, kv_ctx, query_heads=16, num_split=None, head_tile=Non
                                 0,
                                 dtype="float32x4",
                             )
+            # One split writes the normalized output directly; multiple splits
+            # write unnormalized FP32 state for the second kernel.
             for j in T.serial(16):
                 for local_id in T.vectorized(4):
                     row = wave_row * 16 + lane_main % 16
@@ -249,6 +264,8 @@ def mla_decode_maca(batch, kv_ctx, query_heads=16, num_split=None, head_tile=Non
                 peer = T.alloc_var(accum_dtype)
                 weight = T.alloc_var(accum_dtype)
 
+                # Merge in a common softmax scale: w_s = exp2((m_s - max(m)) * scale).
+                # Output = sum(w_s * partial_PV_s) / sum(w_s * sum_P_s).
                 # Each wave computes its own weights and owns disjoint output columns.
                 global_max = workspace[max_offset + (merge_batch * num_split + lane % num_split) * query_heads + merge_head]
                 for shard in T.serial(1, (num_split + wave_size - 1) // wave_size):

@@ -1,0 +1,2623 @@
+{
+  "environment": {
+    "device": "MetaX C500 sGPU",
+    "memory_quota_MiB": 32000,
+    "reported_compute_quota_percent": 50,
+    "scheduler": "best effort",
+    "timeslice_ms": 10,
+    "driver": "3.8.30",
+    "maca_reported_by_mx_smi": "3.7.1.5",
+    "torch": "2.8.0+metax3.7.1.3",
+    "tilelang": "0.1.10+cuda.gitf549117c",
+    "triton": "3.0.0 (MetaX backend)"
+  },
+  "sources": {
+    "dense_baseline_commit": "90d49f353ec88bd0d346474f143003d865dd3b79",
+    "triton_reference": "https://github.com/tile-ai/tilelang/blob/4ed9b9edb5c9a1e05f52b3bd45e7116fea7ec9ab/examples/deepseek_mla/amd/benchmark_mla_decode_amd_triton.py",
+    "c500_source_sha256": "e42fb852da62077d5e4b594e824a9631333ff0b16b8ae2de95751124287ff1de",
+    "triton_adapter_sha256": "823557a6303a9ea58c6d17a2b416d9b9938faaa34c88cfb732c24543710ada2c",
+    "measured_triton_adapter_sha256": "7b7aece70535255ea271185b5df8631da68243ac3c3403261869854eab2807e6",
+    "public_adapter_equivalence": "AST matches measured adapter after excluding the module provenance docstring; public formatting was verified AST-invariant",
+    "current_c500_source_sha256": "f31a06dd7e59eb8ffcb1eb6a954aaffb7f8f622a8ee02a5c39c191a9edce24d9",
+    "current_c500_equivalence": "After measurement, explanatory comments were added; executable AST verified unchanged against measured source. c500_source_sha256 retains the measured-source hash.",
+    "dense_baseline_sha256": "558c56f65c0c8376f05b1bca785e995123a53162c9fbd38c4366915853265dc3"
+  },
+  "protocol": {
+    "format": "shape keys are batch x heads x KV tokens; configs: default=[head_tile,splits], dense=[head_tile,key_tile,splits], triton=[head_tile,key_tile,warps,splits]",
+    "input": "contiguous FP16, one KV head, latent dimension512, positional dimension64; GPU torch.randn for final measurement",
+    "seed": 9123,
+    "validation_random_seeds": [
+      9123,
+      9124
+    ],
+    "validation_stress_profiles": [
+      "early-peak",
+      "late-peak",
+      "large-v"
+    ],
+    "atol": 0.002,
+    "rtol": 0.002,
+    "latency_unit": "microseconds",
+    "summary": "median of six batch-average full-call wall samples",
+    "boundary": "output/workspace allocations, all kernel launches, merge, batch-end synchronization; compilation and search excluded",
+    "order": "all six permutations of the three implementations",
+    "tuning": "Public C500 default; dense configs previously screened on C500; Triton staged tile/wave/split screening followed by full split rescreen for the selected layout and 1/2-wave probes. Finite search, not a global optimum claim."
+  },
+  "audit": {
+    "source_sha256": "88e3138b53b9e63b1f2075f08826d83b034ae8d856575d67572404c5df2230dd",
+    "shapes": 22,
+    "full_output_checks": 330,
+    "max_abs": 0.00019180774688720703,
+    "max_wall_cv": 0.012579997530728887,
+    "groups": {
+      "small": {
+        "dense": {
+          "range": [
+            1.4565318031434344,
+            2.7909431342497877
+          ],
+          "wins": 12,
+          "count": 12
+        },
+        "triton": {
+          "range": [
+            2.182485252855929,
+            3.3695755159794976
+          ],
+          "wins": 12,
+          "count": 12
+        }
+      },
+      "large": {
+        "dense": {
+          "range": [
+            1.7914947974190676,
+            2.882816390634169
+          ],
+          "wins": 10,
+          "count": 10
+        },
+        "triton": {
+          "range": [
+            5.4853971435335955,
+            9.502316277818517
+          ],
+          "wins": 10,
+          "count": 10
+        }
+      }
+    }
+  },
+  "results": {
+    "1x16x2048": {
+      "default_config": [
+        16,
+        64
+      ],
+      "dense_config": [
+        16,
+        32,
+        64
+      ],
+      "triton_config": [
+        16,
+        16,
+        4,
+        64
+      ],
+      "validation": {
+        "random/9123": {
+          "default": 6.859004497528076e-05,
+          "dense": 0.00013028085231781006,
+          "triton": 6.787478923797607e-05
+        },
+        "random/9124": {
+          "default": 6.51329755783081e-05,
+          "dense": 0.00015328824520111084,
+          "triton": 6.51329755783081e-05
+        },
+        "early-peak/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        },
+        "late-peak/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        },
+        "large-v/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        }
+      },
+      "measurement": {
+        "warmup": 200,
+        "iterations": 2000,
+        "batches": 6,
+        "seed": 9123
+      },
+      "wall": [
+        {
+          "default": 25.743757549207658,
+          "dense": 37.02755901031196,
+          "triton": 57.19514552038163
+        },
+        {
+          "default": 25.401211983989924,
+          "triton": 57.21157853258774,
+          "dense": 37.134198006242514
+        },
+        {
+          "dense": 37.0258764596656,
+          "default": 25.28175601037219,
+          "triton": 57.42960999486968
+        },
+        {
+          "dense": 37.01467497739941,
+          "triton": 57.16652952833101,
+          "default": 25.4700094810687
+        },
+        {
+          "triton": 58.98846150375903,
+          "default": 25.467684492468834,
+          "dense": 37.23911399720237
+        },
+        {
+          "triton": 57.462786498945206,
+          "dense": 37.06460649846122,
+          "default": 25.399103469680995
+        }
+      ],
+      "event": [
+        {
+          "default": 23.168384552001953,
+          "dense": 34.548095703125,
+          "triton": 54.56614303588867
+        },
+        {
+          "default": 23.184511184692383,
+          "triton": 55.01772689819336,
+          "dense": 34.60185623168945
+        },
+        {
+          "dense": 34.81740951538086,
+          "default": 23.225343704223633,
+          "triton": 54.7960319519043
+        },
+        {
+          "dense": 34.55961608886719,
+          "triton": 56.492671966552734,
+          "default": 23.17158317565918
+        },
+        {
+          "triton": 55.129215240478516,
+          "default": 23.223552703857422,
+          "dense": 34.509952545166016
+        },
+        {
+          "triton": 55.23097610473633,
+          "dense": 34.65856170654297,
+          "default": 23.21126365661621
+        }
+      ],
+      "complete": true
+    },
+    "1x16x4096": {
+      "default_config": [
+        16,
+        64
+      ],
+      "dense_config": [
+        16,
+        32,
+        64
+      ],
+      "triton_config": [
+        16,
+        16,
+        4,
+        64
+      ],
+      "validation": {
+        "random/9123": {
+          "default": 6.352365016937256e-05,
+          "dense": 9.80272889137268e-05,
+          "triton": 6.054341793060303e-05
+        },
+        "random/9124": {
+          "default": 6.368756294250488e-05,
+          "dense": 0.00010073184967041016,
+          "triton": 6.632506847381592e-05
+        },
+        "early-peak/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        },
+        "late-peak/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        },
+        "large-v/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        }
+      },
+      "measurement": {
+        "warmup": 200,
+        "iterations": 2000,
+        "batches": 6,
+        "seed": 9123
+      },
+      "wall": [
+        {
+          "default": 31.904476520139724,
+          "dense": 49.60626253159717,
+          "triton": 75.77399600995705
+        },
+        {
+          "default": 31.632163969334215,
+          "triton": 75.79189649550244,
+          "dense": 49.40171347698197
+        },
+        {
+          "dense": 49.43141102558002,
+          "default": 31.544914992991835,
+          "triton": 73.96441203309223
+        },
+        {
+          "dense": 49.354351474903524,
+          "triton": 73.95158900180832,
+          "default": 31.645631010178477
+        },
+        {
+          "triton": 74.00089100701734,
+          "default": 31.69182303827256,
+          "dense": 49.40658702980727
+        },
+        {
+          "triton": 73.94979795208201,
+          "dense": 49.39813702367246,
+          "default": 31.670172465965152
+        }
+      ],
+      "event": [
+        {
+          "default": 29.438720703125,
+          "dense": 46.92607879638672,
+          "triton": 71.27168273925781
+        },
+        {
+          "default": 29.440895080566406,
+          "triton": 73.07341003417969,
+          "dense": 46.91136169433594
+        },
+        {
+          "dense": 46.79244613647461,
+          "default": 29.350656509399414,
+          "triton": 73.06687927246094
+        },
+        {
+          "dense": 46.97792053222656,
+          "triton": 71.21676635742188,
+          "default": 30.46169662475586
+        },
+        {
+          "triton": 73.11309051513672,
+          "default": 29.361024856567383,
+          "dense": 46.77580642700195
+        },
+        {
+          "triton": 73.15878295898438,
+          "dense": 46.903297424316406,
+          "default": 29.346559524536133
+        }
+      ],
+      "complete": true
+    },
+    "1x16x8192": {
+      "default_config": [
+        16,
+        64
+      ],
+      "dense_config": [
+        16,
+        32,
+        128
+      ],
+      "triton_config": [
+        16,
+        16,
+        4,
+        64
+      ],
+      "validation": {
+        "random/9123": {
+          "default": 6.459653377532959e-05,
+          "dense": 0.00010214745998382568,
+          "triton": 5.899369716644287e-05
+        },
+        "random/9124": {
+          "default": 6.218254566192627e-05,
+          "dense": 0.00010190904140472412,
+          "triton": 6.218254566192627e-05
+        },
+        "early-peak/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        },
+        "late-peak/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        },
+        "large-v/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        }
+      },
+      "measurement": {
+        "warmup": 200,
+        "iterations": 2000,
+        "batches": 6,
+        "seed": 9123
+      },
+      "wall": [
+        {
+          "default": 45.856248994823545,
+          "dense": 93.01925200270489,
+          "triton": 115.40902545675635
+        },
+        {
+          "default": 45.733864535577595,
+          "triton": 113.57185203814879,
+          "dense": 93.08987850090489
+        },
+        {
+          "dense": 92.96165144769475,
+          "default": 45.678859984036535,
+          "triton": 115.29586702818051
+        },
+        {
+          "dense": 92.96028298558667,
+          "triton": 113.39772550854832,
+          "default": 45.56525353109464
+        },
+        {
+          "triton": 115.26423849863932,
+          "default": 45.59738398529589,
+          "dense": 93.07339548831806
+        },
+        {
+          "triton": 115.46075600199401,
+          "dense": 92.9113999591209,
+          "default": 45.66488252021372
+        }
+      ],
+      "event": [
+        {
+          "default": 43.412864685058594,
+          "dense": 90.41970825195312,
+          "triton": 110.78553771972656
+        },
+        {
+          "default": 43.463680267333984,
+          "triton": 112.75341033935547,
+          "dense": 90.36851501464844
+        },
+        {
+          "dense": 90.37490844726562,
+          "default": 43.38444900512695,
+          "triton": 110.59750366210938
+        },
+        {
+          "dense": 90.29043579101562,
+          "triton": 112.47564697265625,
+          "default": 43.35590362548828
+        },
+        {
+          "triton": 112.43392181396484,
+          "default": 43.398399353027344,
+          "dense": 90.44198608398438
+        },
+        {
+          "triton": 112.51763153076172,
+          "dense": 90.41651153564453,
+          "default": 43.34092712402344
+        }
+      ],
+      "complete": true
+    },
+    "1x16x16384": {
+      "default_config": [
+        16,
+        64
+      ],
+      "dense_config": [
+        16,
+        32,
+        256
+      ],
+      "triton_config": [
+        16,
+        16,
+        4,
+        64
+      ],
+      "validation": {
+        "random/9123": {
+          "default": 6.0886144638061523e-05,
+          "dense": 8.507072925567627e-05,
+          "triton": 6.0886144638061523e-05
+        },
+        "random/9124": {
+          "default": 6.148219108581543e-05,
+          "dense": 7.149577140808105e-05,
+          "triton": 6.148219108581543e-05
+        },
+        "early-peak/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        },
+        "late-peak/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        },
+        "large-v/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        }
+      },
+      "measurement": {
+        "warmup": 200,
+        "iterations": 2000,
+        "batches": 6,
+        "seed": 9123
+      },
+      "wall": [
+        {
+          "default": 79.9809314776212,
+          "dense": 157.34310197876766,
+          "triton": 193.5023550176993
+        },
+        {
+          "default": 79.63837799616158,
+          "triton": 192.8989650332369,
+          "dense": 156.9729020120576
+        },
+        {
+          "dense": 156.92890051286668,
+          "default": 79.56793450284749,
+          "triton": 191.44025549758226
+        },
+        {
+          "dense": 156.9800379802473,
+          "triton": 191.38588453643024,
+          "default": 79.5930260210298
+        },
+        {
+          "triton": 193.17096151644364,
+          "default": 79.69857251737267,
+          "dense": 157.14953001588583
+        },
+        {
+          "triton": 193.43452400062233,
+          "dense": 157.20647404668853,
+          "default": 79.73330048844218
+        }
+      ],
+      "event": [
+        {
+          "default": 77.16326141357422,
+          "dense": 154.27877807617188,
+          "triton": 188.1239013671875
+        },
+        {
+          "default": 77.17772674560547,
+          "triton": 188.02227783203125,
+          "dense": 154.2248992919922
+        },
+        {
+          "dense": 154.4574737548828,
+          "default": 77.07212829589844,
+          "triton": 188.77593994140625
+        },
+        {
+          "dense": 154.6307830810547,
+          "triton": 190.4938201904297,
+          "default": 77.1731185913086
+        },
+        {
+          "triton": 188.78822326660156,
+          "default": 77.119873046875,
+          "dense": 154.26829528808594
+        },
+        {
+          "triton": 188.832763671875,
+          "dense": 154.3223114013672,
+          "default": 77.1673583984375
+        }
+      ],
+      "complete": true
+    },
+    "1x16x32768": {
+      "default_config": [
+        16,
+        256
+      ],
+      "dense_config": [
+        16,
+        32,
+        512
+      ],
+      "triton_config": [
+        16,
+        16,
+        4,
+        64
+      ],
+      "validation": {
+        "random/9123": {
+          "default": 6.015598773956299e-05,
+          "dense": 6.751716136932373e-05,
+          "triton": 6.191432476043701e-05
+        },
+        "random/9124": {
+          "default": 5.990266799926758e-05,
+          "dense": 6.376206874847412e-05,
+          "triton": 5.990266799926758e-05
+        },
+        "early-peak/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        },
+        "late-peak/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        },
+        "large-v/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        }
+      },
+      "measurement": {
+        "warmup": 200,
+        "iterations": 2000,
+        "batches": 6,
+        "seed": 9123
+      },
+      "wall": [
+        {
+          "default": 124.68343699583784,
+          "dense": 285.818102536723,
+          "triton": 348.2342879869975
+        },
+        {
+          "default": 124.384013004601,
+          "triton": 347.78420050861314,
+          "dense": 285.70474800653756
+        },
+        {
+          "dense": 285.71654396364465,
+          "default": 124.42489148816094,
+          "triton": 347.6716859731823
+        },
+        {
+          "dense": 285.9216660144739,
+          "triton": 348.44875294947997,
+          "default": 124.42267051665112
+        },
+        {
+          "triton": 348.34898851113394,
+          "default": 124.36741852434352,
+          "dense": 285.8286310220137
+        },
+        {
+          "triton": 347.679742553737,
+          "dense": 285.7450230512768,
+          "default": 124.26769296871498
+        }
+      ],
+      "event": [
+        {
+          "default": 122.30770874023438,
+          "dense": 283.4835205078125,
+          "triton": 346.8572082519531
+        },
+        {
+          "default": 122.3447036743164,
+          "triton": 344.6536865234375,
+          "dense": 283.6046142578125
+        },
+        {
+          "dense": 283.5436706542969,
+          "default": 122.37529754638672,
+          "triton": 344.608642578125
+        },
+        {
+          "dense": 283.541259765625,
+          "triton": 343.6966247558594,
+          "default": 122.46412658691406
+        },
+        {
+          "triton": 346.2722473144531,
+          "default": 122.35635375976562,
+          "dense": 283.3360595703125
+        },
+        {
+          "triton": 346.4709167480469,
+          "dense": 283.6444091796875,
+          "default": 122.29593658447266
+        }
+      ],
+      "complete": true
+    },
+    "1x16x65536": {
+      "default_config": [
+        16,
+        512
+      ],
+      "dense_config": [
+        16,
+        32,
+        1024
+      ],
+      "triton_config": [
+        16,
+        16,
+        4,
+        64
+      ],
+      "validation": {
+        "random/9123": {
+          "default": 5.84721565246582e-05,
+          "dense": 6.35981559753418e-05,
+          "triton": 5.84721565246582e-05
+        },
+        "random/9124": {
+          "default": 5.8144330978393555e-05,
+          "dense": 6.73532485961914e-05,
+          "triton": 5.8144330978393555e-05
+        },
+        "early-peak/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        },
+        "late-peak/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        },
+        "large-v/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        }
+      },
+      "measurement": {
+        "warmup": 200,
+        "iterations": 2000,
+        "batches": 6,
+        "seed": 9123
+      },
+      "wall": [
+        {
+          "default": 202.40606955485418,
+          "dense": 563.9089884934947,
+          "triton": 661.6433865274303
+        },
+        {
+          "default": 202.3070270079188,
+          "triton": 658.4780894918367,
+          "dense": 563.9148560003377
+        },
+        {
+          "dense": 564.1817825380713,
+          "default": 202.17998704174533,
+          "triton": 661.6808990365826
+        },
+        {
+          "dense": 563.969379523769,
+          "triton": 663.2502570282668,
+          "default": 201.94298546994105
+        },
+        {
+          "triton": 663.0912579712458,
+          "default": 201.9279624801129,
+          "dense": 563.7554610148072
+        },
+        {
+          "triton": 661.0036244965158,
+          "dense": 564.3978795269504,
+          "default": 201.9018760183826
+        }
+      ],
+      "event": [
+        {
+          "default": 199.27821350097656,
+          "dense": 560.9553833007812,
+          "triton": 658.7184448242188
+        },
+        {
+          "default": 199.2794952392578,
+          "triton": 656.716796875,
+          "dense": 560.6998901367188
+        },
+        {
+          "dense": 560.9108276367188,
+          "default": 199.30982971191406,
+          "triton": 659.399658203125
+        },
+        {
+          "dense": 560.8705444335938,
+          "triton": 659.7178955078125,
+          "default": 199.16671752929688
+        },
+        {
+          "triton": 659.897705078125,
+          "default": 199.3290252685547,
+          "dense": 560.708251953125
+        },
+        {
+          "triton": 659.1692504882812,
+          "dense": 560.7955322265625,
+          "default": 199.2183074951172
+        }
+      ],
+      "complete": true
+    },
+    "2x16x2048": {
+      "default_config": [
+        16,
+        32
+      ],
+      "dense_config": [
+        16,
+        32,
+        32
+      ],
+      "triton_config": [
+        16,
+        16,
+        4,
+        32
+      ],
+      "validation": {
+        "random/9123": {
+          "default": 6.908178329467773e-05,
+          "dense": 0.00015745684504508972,
+          "triton": 6.908178329467773e-05
+        },
+        "random/9124": {
+          "default": 6.864964962005615e-05,
+          "dense": 0.00014485418796539307,
+          "triton": 6.83218240737915e-05
+        },
+        "early-peak/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        },
+        "late-peak/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        },
+        "large-v/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        }
+      },
+      "measurement": {
+        "warmup": 200,
+        "iterations": 2000,
+        "batches": 6,
+        "seed": 9123
+      },
+      "wall": [
+        {
+          "default": 30.87563900044188,
+          "dense": 45.310301531571895,
+          "triton": 66.57289550639689
+        },
+        {
+          "default": 30.50268196966499,
+          "triton": 67.59823049651459,
+          "dense": 45.191877987235785
+        },
+        {
+          "dense": 45.24050449253991,
+          "default": 30.533021490555257,
+          "triton": 66.55668601160869
+        },
+        {
+          "dense": 45.153639977797866,
+          "triton": 67.18944001477212,
+          "default": 30.475706502329558
+        },
+        {
+          "triton": 66.50574196828529,
+          "default": 30.496392981149256,
+          "dense": 45.198323496151716
+        },
+        {
+          "triton": 66.42357702367008,
+          "dense": 45.37668050033972,
+          "default": 30.41370853316039
+        }
+      ],
+      "event": [
+        {
+          "default": 28.070783615112305,
+          "dense": 42.26367950439453,
+          "triton": 63.73350524902344
+        },
+        {
+          "default": 28.04582405090332,
+          "triton": 64.6270751953125,
+          "dense": 42.461822509765625
+        },
+        {
+          "dense": 42.3768310546875,
+          "default": 28.008319854736328,
+          "triton": 63.619712829589844
+        },
+        {
+          "dense": 42.33420944213867,
+          "triton": 63.54560089111328,
+          "default": 27.9234561920166
+        },
+        {
+          "triton": 63.59667205810547,
+          "default": 28.012544631958008,
+          "dense": 42.483070373535156
+        },
+        {
+          "triton": 63.5233268737793,
+          "dense": 42.3138542175293,
+          "default": 27.940223693847656
+        }
+      ],
+      "complete": true
+    },
+    "2x16x8192": {
+      "default_config": [
+        16,
+        32
+      ],
+      "dense_config": [
+        16,
+        32,
+        128
+      ],
+      "triton_config": [
+        16,
+        16,
+        4,
+        32
+      ],
+      "validation": {
+        "random/9123": {
+          "default": 6.252527236938477e-05,
+          "dense": 9.115040302276611e-05,
+          "triton": 6.429851055145264e-05
+        },
+        "random/9124": {
+          "default": 6.383657455444336e-05,
+          "dense": 8.954107761383057e-05,
+          "triton": 6.189942359924316e-05
+        },
+        "early-peak/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        },
+        "late-peak/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        },
+        "large-v/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        }
+      },
+      "measurement": {
+        "warmup": 200,
+        "iterations": 2000,
+        "batches": 6,
+        "seed": 9123
+      },
+      "wall": [
+        {
+          "default": 78.0195640400052,
+          "dense": 131.60764100030065,
+          "triton": 184.6322565106675
+        },
+        {
+          "default": 77.1169094950892,
+          "triton": 184.6437054919079,
+          "dense": 131.38498202897608
+        },
+        {
+          "dense": 131.62041298346594,
+          "default": 77.52647949382663,
+          "triton": 185.14248344581574
+        },
+        {
+          "dense": 131.6659789881669,
+          "triton": 184.35284052975476,
+          "default": 77.3438069736585
+        },
+        {
+          "triton": 184.44512196583673,
+          "default": 77.21156853949651,
+          "dense": 131.4788709860295
+        },
+        {
+          "triton": 183.57663549249992,
+          "dense": 131.50517002213746,
+          "default": 77.264127030503
+        }
+      ],
+      "event": [
+        {
+          "default": 74.75033569335938,
+          "dense": 128.5254364013672,
+          "triton": 181.6670684814453
+        },
+        {
+          "default": 74.6588134765625,
+          "triton": 181.6062774658203,
+          "dense": 128.5944366455078
+        },
+        {
+          "dense": 128.57586669921875,
+          "default": 74.6671371459961,
+          "triton": 179.8287353515625
+        },
+        {
+          "dense": 128.7361297607422,
+          "triton": 180.63961791992188,
+          "default": 74.7088623046875
+        },
+        {
+          "triton": 180.58023071289062,
+          "default": 74.6266860961914,
+          "dense": 128.64242553710938
+        },
+        {
+          "triton": 181.1683807373047,
+          "dense": 128.6703338623047,
+          "default": 74.70028686523438
+        }
+      ],
+      "complete": true
+    },
+    "2x16x32768": {
+      "default_config": [
+        16,
+        256
+      ],
+      "dense_config": [
+        16,
+        32,
+        512
+      ],
+      "triton_config": [
+        16,
+        16,
+        4,
+        128
+      ],
+      "validation": {
+        "random/9123": {
+          "default": 6.176531314849854e-05,
+          "dense": 6.811320781707764e-05,
+          "triton": 6.105005741119385e-05
+        },
+        "random/9124": {
+          "default": 6.048381328582764e-05,
+          "dense": 7.227063179016113e-05,
+          "triton": 6.048381328582764e-05
+        },
+        "early-peak/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        },
+        "late-peak/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        },
+        "large-v/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        }
+      },
+      "measurement": {
+        "warmup": 200,
+        "iterations": 2000,
+        "batches": 6,
+        "seed": 9123
+      },
+      "wall": [
+        {
+          "default": 186.52042001485825,
+          "dense": 442.7530760294758,
+          "triton": 627.5124139501713
+        },
+        {
+          "default": 186.2660445040092,
+          "triton": 626.6770350048319,
+          "dense": 442.68719002138823
+        },
+        {
+          "dense": 442.4877714482136,
+          "default": 186.13908800762147,
+          "triton": 627.7113034739159
+        },
+        {
+          "dense": 442.5685469759628,
+          "triton": 626.3280040002428,
+          "default": 186.0127740073949
+        },
+        {
+          "triton": 627.4110815138556,
+          "default": 186.4828075049445,
+          "dense": 442.6536379614845
+        },
+        {
+          "triton": 627.4361350224353,
+          "dense": 442.47312750667334,
+          "default": 185.74220850132406
+        }
+      ],
+      "event": [
+        {
+          "default": 183.41542053222656,
+          "dense": 439.6211242675781,
+          "triton": 624.4716796875
+        },
+        {
+          "default": 183.73324584960938,
+          "triton": 624.3363647460938,
+          "dense": 439.7505187988281
+        },
+        {
+          "dense": 439.6817932128906,
+          "default": 183.58694458007812,
+          "triton": 624.2125854492188
+        },
+        {
+          "dense": 439.77764892578125,
+          "triton": 624.3892211914062,
+          "default": 183.6294403076172
+        },
+        {
+          "triton": 624.3644409179688,
+          "default": 183.5325469970703,
+          "dense": 439.7178955078125
+        },
+        {
+          "triton": 624.4088134765625,
+          "dense": 439.6476135253906,
+          "default": 183.54739379882812
+        }
+      ],
+      "complete": true
+    },
+    "4x16x2048": {
+      "default_config": [
+        16,
+        16
+      ],
+      "dense_config": [
+        16,
+        32,
+        32
+      ],
+      "triton_config": [
+        16,
+        16,
+        4,
+        16
+      ],
+      "validation": {
+        "random/9123": {
+          "default": 7.042288780212402e-05,
+          "dense": 0.0001693516969680786,
+          "triton": 7.161498069763184e-05
+        },
+        "random/9124": {
+          "default": 7.21663236618042e-05,
+          "dense": 0.0001627504825592041,
+          "triton": 6.943941116333008e-05
+        },
+        "early-peak/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        },
+        "late-peak/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        },
+        "large-v/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        }
+      },
+      "measurement": {
+        "warmup": 200,
+        "iterations": 2000,
+        "batches": 6,
+        "seed": 9123
+      },
+      "wall": [
+        {
+          "default": 43.108029989525676,
+          "dense": 74.84019902767614,
+          "triton": 103.30718953628093
+        },
+        {
+          "default": 42.5238964962773,
+          "triton": 102.6201265049167,
+          "dense": 74.72059200517833
+        },
+        {
+          "dense": 74.63475147960708,
+          "default": 42.590943980030715,
+          "triton": 103.496621013619
+        },
+        {
+          "dense": 74.47092700749636,
+          "triton": 103.35240449057892,
+          "default": 42.600914486683905
+        },
+        {
+          "triton": 102.69577300641686,
+          "default": 42.632530501578,
+          "dense": 74.66871553333476
+        },
+        {
+          "triton": 103.44727349001914,
+          "dense": 74.68532701022923,
+          "default": 42.49559302115813
+        }
+      ],
+      "event": [
+        {
+          "default": 40.26444625854492,
+          "dense": 72.05158233642578,
+          "triton": 100.38706970214844
+        },
+        {
+          "default": 40.2927360534668,
+          "triton": 99.78022766113281,
+          "dense": 71.94022369384766
+        },
+        {
+          "dense": 71.89234924316406,
+          "default": 40.159488677978516,
+          "triton": 99.86176300048828
+        },
+        {
+          "dense": 71.91219329833984,
+          "triton": 100.55398559570312,
+          "default": 40.19801712036133
+        },
+        {
+          "triton": 100.5665283203125,
+          "default": 40.315006256103516,
+          "dense": 71.98873901367188
+        },
+        {
+          "triton": 100.43596649169922,
+          "dense": 70.28761291503906,
+          "default": 39.182464599609375
+        }
+      ],
+      "complete": true
+    },
+    "4x16x8192": {
+      "default_config": [
+        16,
+        64
+      ],
+      "dense_config": [
+        16,
+        32,
+        128
+      ],
+      "triton_config": [
+        16,
+        16,
+        4,
+        64
+      ],
+      "validation": {
+        "random/9123": {
+          "default": 6.338953971862793e-05,
+          "dense": 8.343160152435303e-05,
+          "triton": 6.338953971862793e-05
+        },
+        "random/9124": {
+          "default": 6.440281867980957e-05,
+          "dense": 9.340047836303711e-05,
+          "triton": 6.440281867980957e-05
+        },
+        "early-peak/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        },
+        "late-peak/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        },
+        "large-v/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        }
+      },
+      "measurement": {
+        "warmup": 200,
+        "iterations": 2000,
+        "batches": 6,
+        "seed": 9123
+      },
+      "wall": [
+        {
+          "default": 113.19209600333124,
+          "dense": 192.8205629810691,
+          "triton": 340.02116200281307
+        },
+        {
+          "default": 113.5765709914267,
+          "triton": 340.12905351119116,
+          "dense": 194.47402254445478
+        },
+        {
+          "dense": 194.29166096961126,
+          "default": 113.46974549815059,
+          "triton": 339.8755129892379
+        },
+        {
+          "dense": 194.4344569928944,
+          "triton": 339.7709294804372,
+          "default": 113.34218096453696
+        },
+        {
+          "triton": 339.85757344635203,
+          "default": 113.50521253189072,
+          "dense": 194.21795348171145
+        },
+        {
+          "triton": 339.79862049454823,
+          "dense": 194.32571000652388,
+          "default": 113.45597199397162
+        }
+      ],
+      "event": [
+        {
+          "default": 110.87104034423828,
+          "dense": 191.4036407470703,
+          "triton": 337.3125
+        },
+        {
+          "default": 111.12166595458984,
+          "triton": 337.1544189453125,
+          "dense": 191.57554626464844
+        },
+        {
+          "dense": 191.43295288085938,
+          "default": 111.18284606933594,
+          "triton": 337.10296630859375
+        },
+        {
+          "dense": 191.5372772216797,
+          "triton": 337.3131408691406,
+          "default": 111.1310043334961
+        },
+        {
+          "triton": 337.067138671875,
+          "default": 111.21932983398438,
+          "dense": 191.53651428222656
+        },
+        {
+          "triton": 337.12396240234375,
+          "dense": 191.62060546875,
+          "default": 111.11334228515625
+        }
+      ],
+      "complete": true
+    },
+    "4x16x32768": {
+      "default_config": [
+        16,
+        256
+      ],
+      "dense_config": [
+        16,
+        32,
+        512
+      ],
+      "triton_config": [
+        16,
+        16,
+        4,
+        128
+      ],
+      "validation": {
+        "random/9123": {
+          "default": 6.258487701416016e-05,
+          "dense": 6.398558616638184e-05,
+          "triton": 6.307661533355713e-05
+        },
+        "random/9124": {
+          "default": 6.251037120819092e-05,
+          "dense": 7.306039333343506e-05,
+          "triton": 6.251037120819092e-05
+        },
+        "early-peak/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        },
+        "late-peak/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        },
+        "large-v/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        }
+      },
+      "measurement": {
+        "warmup": 200,
+        "iterations": 2000,
+        "batches": 6,
+        "seed": 9123
+      },
+      "wall": [
+        {
+          "default": 339.7324489778839,
+          "dense": 737.6436549820937,
+          "triton": 1078.964693006128
+        },
+        {
+          "default": 338.824181468226,
+          "triton": 1079.1601099772379,
+          "dense": 736.2893724930473
+        },
+        {
+          "dense": 737.7799334935844,
+          "default": 339.75489099975675,
+          "triton": 1078.0409750295803
+        },
+        {
+          "dense": 737.6006239792332,
+          "triton": 1078.2620995305479,
+          "default": 339.37413699459285
+        },
+        {
+          "triton": 1077.677704510279,
+          "default": 339.4334079930559,
+          "dense": 742.7723745349795
+        },
+        {
+          "triton": 1078.8765895413235,
+          "dense": 736.8042269954458,
+          "default": 338.9622934628278
+        }
+      ],
+      "event": [
+        {
+          "default": 335.93829345703125,
+          "dense": 734.6390991210938,
+          "triton": 1075.099365234375
+        },
+        {
+          "default": 336.0310974121094,
+          "triton": 1075.1820068359375,
+          "dense": 734.8809204101562
+        },
+        {
+          "dense": 734.759521484375,
+          "default": 337.12933349609375,
+          "triton": 1075.4886474609375
+        },
+        {
+          "dense": 734.80126953125,
+          "triton": 1075.1619873046875,
+          "default": 337.2167663574219
+        },
+        {
+          "triton": 1075.0101318359375,
+          "default": 336.99713134765625,
+          "dense": 734.7379150390625
+        },
+        {
+          "triton": 1074.9239501953125,
+          "dense": 734.830322265625,
+          "default": 337.1943664550781
+        }
+      ],
+      "complete": true
+    },
+    "64x128x1024": {
+      "default_config": [
+        64,
+        2
+      ],
+      "dense_config": [
+        16,
+        32,
+        1
+      ],
+      "triton_config": [
+        16,
+        16,
+        4,
+        2
+      ],
+      "validation": {
+        "random/9123": {
+          "default": 0.0001455247402191162,
+          "dense": 0.0001455247402191162,
+          "triton": 0.00014847517013549805
+        },
+        "random/9124": {
+          "default": 0.00019180774688720703,
+          "dense": 0.00019180774688720703,
+          "triton": 0.00019180774688720703
+        },
+        "early-peak/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        },
+        "late-peak/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        },
+        "large-v/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        }
+      },
+      "measurement": {
+        "warmup": 5,
+        "iterations": 30,
+        "batches": 6,
+        "seed": 9123
+      },
+      "wall": [
+        {
+          "default": 612.7668311819434,
+          "dense": 1098.2335001851122,
+          "triton": 3363.8863979528346
+        },
+        {
+          "default": 612.9144031244019,
+          "triton": 3364.5452659887574,
+          "dense": 1098.9085344287257
+        },
+        {
+          "dense": 1098.8940329601367,
+          "default": 613.548265149196,
+          "triton": 3361.1014019697905
+        },
+        {
+          "dense": 1098.5677014105022,
+          "triton": 3363.072833356758,
+          "default": 613.57303444917
+        },
+        {
+          "triton": 3367.891135470321,
+          "default": 613.3333353015283,
+          "dense": 1098.947199837615
+        },
+        {
+          "triton": 3366.2101331477365,
+          "dense": 1097.5074643890064,
+          "default": 613.274599891156
+        }
+      ],
+      "event": [
+        {
+          "default": 609.8943710327148,
+          "dense": 1095.5008188883464,
+          "triton": 3367.3728942871094
+        },
+        {
+          "default": 609.5104217529297,
+          "triton": 3359.428151448568,
+          "dense": 1096.2090810139973
+        },
+        {
+          "dense": 1095.6459045410156,
+          "default": 609.1605504353842,
+          "triton": 3357.0902506510415
+        },
+        {
+          "dense": 1095.6459045410156,
+          "triton": 3362.1419270833335,
+          "default": 609.3994776407877
+        },
+        {
+          "triton": 3360.6826782226562,
+          "default": 609.715207417806,
+          "dense": 1095.7312266031902
+        },
+        {
+          "triton": 3362.585703531901,
+          "dense": 1095.7909901936848,
+          "default": 609.4079971313477
+        }
+      ],
+      "complete": true
+    },
+    "128x128x8192": {
+      "default_config": [
+        64,
+        2
+      ],
+      "dense_config": [
+        16,
+        32,
+        1
+      ],
+      "triton_config": [
+        16,
+        16,
+        4,
+        16
+      ],
+      "validation": {
+        "random/9123": {
+          "default": 0.00010710954666137695,
+          "dense": 0.00010710954666137695,
+          "triton": 0.00010710954666137695
+        },
+        "random/9124": {
+          "default": 7.18533992767334e-05,
+          "dense": 7.18533992767334e-05,
+          "triton": 7.110834121704102e-05
+        },
+        "early-peak/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        },
+        "late-peak/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        },
+        "large-v/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        }
+      },
+      "measurement": {
+        "warmup": 5,
+        "iterations": 30,
+        "batches": 6,
+        "seed": 9123
+      },
+      "wall": [
+        {
+          "default": 5997.387265476088,
+          "dense": 16867.16633072744,
+          "triton": 55158.26209836329
+        },
+        {
+          "default": 5998.747997606794,
+          "triton": 55240.35120227685,
+          "dense": 16876.338798707973
+        },
+        {
+          "dense": 16911.346100581188,
+          "default": 5995.436233934015,
+          "triton": 55176.465364638716
+        },
+        {
+          "dense": 16846.24313299234,
+          "triton": 55206.59049895281,
+          "default": 6004.571596470972
+        },
+        {
+          "triton": 55062.073131557554,
+          "default": 5994.131264742464,
+          "dense": 16876.233799848706
+        },
+        {
+          "triton": 55049.72753114998,
+          "dense": 16845.34850064665,
+          "default": 6000.976466263334
+        }
+      ],
+      "event": [
+        {
+          "default": 5991.9871012369795,
+          "dense": 16857.907104492188,
+          "triton": 55215.421549479164
+        },
+        {
+          "default": 5994.8883056640625,
+          "triton": 55192.744954427086,
+          "dense": 16856.24287923177
+        },
+        {
+          "dense": 16847.769165039062,
+          "default": 5993.3868408203125,
+          "triton": 55065.4296875
+        },
+        {
+          "dense": 16847.86376953125,
+          "triton": 55251.652018229164,
+          "default": 5996.697489420573
+        },
+        {
+          "triton": 55015.63720703125,
+          "default": 5992.610168457031,
+          "dense": 16846.959431966145
+        },
+        {
+          "triton": 55093.949381510414,
+          "dense": 16853.529866536457,
+          "default": 5993.975321451823
+        }
+      ],
+      "complete": true
+    },
+    "64x128x2048": {
+      "default_config": [
+        64,
+        4
+      ],
+      "dense_config": [
+        16,
+        32,
+        1
+      ],
+      "triton_config": [
+        16,
+        16,
+        4,
+        8
+      ],
+      "validation": {
+        "random/9123": {
+          "default": 0.00012415647506713867,
+          "dense": 0.00012740492820739746,
+          "triton": 0.00012415647506713867
+        },
+        "random/9124": {
+          "default": 0.00012764334678649902,
+          "dense": 0.00012764334678649902,
+          "triton": 0.00012764334678649902
+        },
+        "early-peak/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        },
+        "late-peak/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        },
+        "large-v/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        }
+      },
+      "measurement": {
+        "warmup": 5,
+        "iterations": 30,
+        "batches": 6,
+        "seed": 9123
+      },
+      "wall": [
+        {
+          "default": 1033.8966307851176,
+          "dense": 2149.8817678851387,
+          "triton": 7058.557798154652
+        },
+        {
+          "default": 1032.2078325164814,
+          "triton": 7044.021331239492,
+          "dense": 2149.796000837038
+        },
+        {
+          "dense": 2148.005599156022,
+          "default": 1032.773032784462,
+          "triton": 7073.354934497426
+        },
+        {
+          "dense": 2146.3165641762316,
+          "triton": 7056.6037980218725,
+          "default": 1034.7538666489224
+        },
+        {
+          "triton": 7047.887767354648,
+          "default": 1032.7772314970691,
+          "dense": 2148.094334794829
+        },
+        {
+          "triton": 7071.708030222605,
+          "dense": 2146.3114341410496,
+          "default": 1032.7729668157797
+        }
+      ],
+      "event": [
+        {
+          "default": 1029.845364888509,
+          "dense": 2146.1588541666665,
+          "triton": 7050.888570149739
+        },
+        {
+          "default": 1029.8794428507488,
+          "triton": 7017.702229817708,
+          "dense": 2145.3313191731772
+        },
+        {
+          "dense": 2147.7717081705728,
+          "default": 1030.1610946655273,
+          "triton": 7017.378234863281
+        },
+        {
+          "dense": 2145.9627787272134,
+          "triton": 7048.396809895833,
+          "default": 1030.9888203938801
+        },
+        {
+          "triton": 7036.373392740886,
+          "default": 1029.3760299682617,
+          "dense": 2147.174326578776
+        },
+        {
+          "triton": 7057.26318359375,
+          "dense": 2146.0052490234375,
+          "default": 1029.7002792358398
+        }
+      ],
+      "complete": true
+    },
+    "64x128x4096": {
+      "default_config": [
+        64,
+        4
+      ],
+      "dense_config": [
+        16,
+        32,
+        1
+      ],
+      "triton_config": [
+        16,
+        16,
+        4,
+        8
+      ],
+      "validation": {
+        "random/9123": {
+          "default": 7.516145706176758e-05,
+          "dense": 8.03917646408081e-05,
+          "triton": 7.662177085876465e-05
+        },
+        "random/9124": {
+          "default": 0.00011497735977172852,
+          "dense": 0.00011497735977172852,
+          "triton": 0.00011497735977172852
+        },
+        "early-peak/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        },
+        "late-peak/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        },
+        "large-v/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        }
+      },
+      "measurement": {
+        "warmup": 5,
+        "iterations": 30,
+        "batches": 6,
+        "seed": 9123
+      },
+      "wall": [
+        {
+          "default": 1772.696532619496,
+          "dense": 4255.087700827668,
+          "triton": 13531.529069102058
+        },
+        {
+          "default": 1770.9987005218863,
+          "triton": 13547.2730655844,
+          "dense": 4246.466199401766
+        },
+        {
+          "dense": 4246.294133675595,
+          "default": 1770.8887307283778,
+          "triton": 13557.643431704491
+        },
+        {
+          "dense": 4251.443264850725,
+          "triton": 13515.05023194477,
+          "default": 1769.178135630985
+        },
+        {
+          "triton": 13513.774265690396,
+          "default": 1770.9627320679526,
+          "dense": 4249.457099164526
+        },
+        {
+          "triton": 13534.844332995513,
+          "dense": 4246.252701462557,
+          "default": 1771.3995339969795
+        }
+      ],
+      "event": [
+        {
+          "default": 1768.5077667236328,
+          "dense": 4247.560628255208,
+          "triton": 13523.225911458334
+        },
+        {
+          "default": 1768.610127766927,
+          "triton": 13547.136433919271,
+          "dense": 4242.722066243489
+        },
+        {
+          "dense": 4242.653910319011,
+          "default": 1768.5418446858723,
+          "triton": 13516.407267252604
+        },
+        {
+          "dense": 4254.062906901042,
+          "triton": 13492.93212890625,
+          "default": 1767.2618865966797
+        },
+        {
+          "triton": 13523.737589518229,
+          "default": 1768.3541615804036,
+          "dense": 4252.7231852213545
+        },
+        {
+          "triton": 13548.936971028646,
+          "dense": 4238.788350423177,
+          "default": 1767.9189046223958
+        }
+      ],
+      "complete": true
+    },
+    "64x128x8192": {
+      "default_config": [
+        64,
+        4
+      ],
+      "dense_config": [
+        16,
+        32,
+        1
+      ],
+      "triton_config": [
+        16,
+        16,
+        4,
+        16
+      ],
+      "validation": {
+        "random/9123": {
+          "default": 7.075071334838867e-05,
+          "dense": 7.347762584686279e-05,
+          "triton": 7.015466690063477e-05
+        },
+        "random/9124": {
+          "default": 7.045269012451172e-05,
+          "dense": 7.386505603790283e-05,
+          "triton": 7.136166095733643e-05
+        },
+        "early-peak/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        },
+        "late-peak/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        },
+        "large-v/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        }
+      },
+      "measurement": {
+        "warmup": 5,
+        "iterations": 30,
+        "batches": 6,
+        "seed": 9123
+      },
+      "wall": [
+        {
+          "default": 3239.353831547002,
+          "dense": 8427.030100331953,
+          "triton": 27296.845397601526
+        },
+        {
+          "default": 3239.9356986085572,
+          "triton": 27285.762364044785,
+          "dense": 8426.98149693509
+        },
+        {
+          "dense": 8425.063899873445,
+          "default": 3239.8247664483883,
+          "triton": 27290.80979867528
+        },
+        {
+          "dense": 8430.716100459298,
+          "triton": 27291.01839940995,
+          "default": 3237.9754004068673
+        },
+        {
+          "triton": 27336.391364224255,
+          "default": 3238.085366319865,
+          "dense": 8423.415602495274
+        },
+        {
+          "triton": 27362.492432196934,
+          "dense": 8426.789500905821,
+          "default": 3237.871934349338
+        }
+      ],
+      "event": [
+        {
+          "default": 3234.4746907552085,
+          "dense": 8425.566101074219,
+          "triton": 27383.713785807293
+        },
+        {
+          "default": 3235.771687825521,
+          "triton": 27260.85205078125,
+          "dense": 8414.267985026041
+        },
+        {
+          "dense": 8428.228251139322,
+          "default": 3235.2681477864585,
+          "triton": 27278.395589192707
+        },
+        {
+          "dense": 8426.743570963541,
+          "triton": 27239.24560546875,
+          "default": 3234.1163635253906
+        },
+        {
+          "triton": 27342.3095703125,
+          "default": 3234.611256917318,
+          "dense": 8421.52099609375
+        },
+        {
+          "triton": 27418.8720703125,
+          "dense": 8415.274556477865,
+          "default": 3236.2325032552085
+        }
+      ],
+      "complete": true
+    },
+    "64x128x16384": {
+      "default_config": [
+        64,
+        4
+      ],
+      "dense_config": [
+        16,
+        32,
+        1
+      ],
+      "triton_config": [
+        16,
+        16,
+        4,
+        32
+      ],
+      "validation": {
+        "random/9123": {
+          "default": 6.799399852752686e-05,
+          "dense": 6.920099258422852e-05,
+          "triton": 6.686151027679443e-05
+        },
+        "random/9124": {
+          "default": 6.778538227081299e-05,
+          "dense": 6.856024265289307e-05,
+          "triton": 6.693601608276367e-05
+        },
+        "early-peak/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        },
+        "late-peak/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        },
+        "large-v/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        }
+      },
+      "measurement": {
+        "warmup": 5,
+        "iterations": 30,
+        "batches": 6,
+        "seed": 9123
+      },
+      "wall": [
+        {
+          "default": 6202.571866257737,
+          "dense": 16874.933665773522,
+          "triton": 55184.95013238862
+        },
+        {
+          "default": 6202.5495688430965,
+          "triton": 55142.38709971929,
+          "dense": 16838.65220208342
+        },
+        {
+          "dense": 16829.347567788016,
+          "default": 6204.423933134724,
+          "triton": 55310.149832318224
+        },
+        {
+          "dense": 16827.099401659023,
+          "triton": 55326.75556605682,
+          "default": 6203.028299690534
+        },
+        {
+          "triton": 55083.58826627955,
+          "default": 6203.548299769561,
+          "dense": 16860.157736421872
+        },
+        {
+          "triton": 55124.035698827356,
+          "dense": 16870.639733194064,
+          "default": 6202.837696764618
+        }
+      ],
+      "event": [
+        {
+          "default": 6198.195393880208,
+          "dense": 16817.041015625,
+          "triton": 55180.40771484375
+        },
+        {
+          "default": 6197.981770833333,
+          "triton": 55205.879720052086,
+          "dense": 16831.223551432293
+        },
+        {
+          "dense": 16820.873006184895,
+          "default": 6199.022928873698,
+          "triton": 54992.427571614586
+        },
+        {
+          "dense": 16861.883544921875,
+          "triton": 55135.196940104164,
+          "default": 6200.482177734375
+        },
+        {
+          "triton": 55259.256998697914,
+          "default": 6196.897888183594,
+          "dense": 16861.28641764323
+        },
+        {
+          "triton": 55114.8193359375,
+          "dense": 16804.41182454427,
+          "default": 6200.080871582031
+        }
+      ],
+      "complete": true
+    },
+    "128x128x1024": {
+      "default_config": [
+        64,
+        1
+      ],
+      "dense_config": [
+        16,
+        32,
+        1
+      ],
+      "triton_config": [
+        16,
+        16,
+        4,
+        1
+      ],
+      "validation": {
+        "random/9123": {
+          "default": 0.0001430809497833252,
+          "dense": 0.0001430809497833252,
+          "triton": 0.0001430809497833252
+        },
+        "random/9124": {
+          "default": 0.0001411736011505127,
+          "dense": 0.0001418590545654297,
+          "triton": 0.00014469027519226074
+        },
+        "early-peak/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        },
+        "late-peak/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        },
+        "large-v/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        }
+      },
+      "measurement": {
+        "warmup": 5,
+        "iterations": 30,
+        "batches": 6,
+        "seed": 9123
+      },
+      "wall": [
+        {
+          "default": 1022.0410341086487,
+          "dense": 2186.2002982137105,
+          "triton": 6706.873599129419
+        },
+        {
+          "default": 1021.326732976983,
+          "triton": 6711.553766702612,
+          "dense": 2186.2256340682507
+        },
+        {
+          "dense": 2185.43343556424,
+          "default": 1021.1037355475128,
+          "triton": 6714.27029883489
+        },
+        {
+          "dense": 2185.971297634145,
+          "triton": 6726.766497983287,
+          "default": 1022.9988023638725
+        },
+        {
+          "triton": 6727.328399817149,
+          "default": 1023.1946672623357,
+          "dense": 2187.672369958212
+        },
+        {
+          "triton": 6712.882798941185,
+          "dense": 2186.468697618693,
+          "default": 1023.2255988133451
+        }
+      ],
+      "event": [
+        {
+          "default": 1019.5370356241862,
+          "dense": 2183.031463623047,
+          "triton": 6705.083719889323
+        },
+        {
+          "default": 1019.7333017985026,
+          "triton": 6700.705973307292,
+          "dense": 2184.721120198568
+        },
+        {
+          "dense": 2183.7824503580728,
+          "default": 1019.2042668660482,
+          "triton": 6708.292134602864
+        },
+        {
+          "dense": 2182.2975158691406,
+          "triton": 6708.881123860677,
+          "default": 1019.6906407674154
+        },
+        {
+          "triton": 6706.2530517578125,
+          "default": 1019.8783874511719,
+          "dense": 2183.2959493001304
+        },
+        {
+          "triton": 6704.9814860026045,
+          "dense": 2184.8063151041665,
+          "default": 1020.2709197998047
+        }
+      ],
+      "complete": true
+    },
+    "128x128x2048": {
+      "default_config": [
+        64,
+        2
+      ],
+      "dense_config": [
+        16,
+        32,
+        1
+      ],
+      "triton_config": [
+        16,
+        16,
+        4,
+        2
+      ],
+      "validation": {
+        "random/9123": {
+          "default": 0.0001322329044342041,
+          "dense": 0.0001322329044342041,
+          "triton": 0.0001322329044342041
+        },
+        "random/9124": {
+          "default": 0.00013276934623718262,
+          "dense": 0.00013276934623718262,
+          "triton": 0.00012925267219543457
+        },
+        "early-peak/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        },
+        "late-peak/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        },
+        "large-v/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        }
+      },
+      "measurement": {
+        "warmup": 5,
+        "iterations": 30,
+        "batches": 6,
+        "seed": 9123
+      },
+      "wall": [
+        {
+          "default": 1732.4183019809425,
+          "dense": 4281.209036707878,
+          "triton": 13554.131235772124
+        },
+        {
+          "default": 1730.787967486928,
+          "triton": 13555.688899941742,
+          "dense": 4283.574068297942
+        },
+        {
+          "dense": 4284.895401603232,
+          "default": 1731.0541006736457,
+          "triton": 13545.413063062975
+        },
+        {
+          "dense": 4285.718166890244,
+          "triton": 13569.388732624551,
+          "default": 1732.5936001725495
+        },
+        {
+          "triton": 13573.500933125615,
+          "default": 1736.069032146285,
+          "dense": 4281.054503129174
+        },
+        {
+          "triton": 13576.32166473195,
+          "dense": 4284.545065214236,
+          "default": 1732.498302590102
+        }
+      ],
+      "event": [
+        {
+          "default": 1728.1536102294922,
+          "dense": 4282.043965657552,
+          "triton": 13541.879272460938
+        },
+        {
+          "default": 1728.0170440673828,
+          "triton": 13549.201456705729,
+          "dense": 4279.876200358073
+        },
+        {
+          "dense": 4279.364013671875,
+          "default": 1727.0698547363281,
+          "triton": 13533.235677083334
+        },
+        {
+          "dense": 4280.7383219401045,
+          "triton": 13524.249267578125,
+          "default": 1727.7098337809246
+        },
+        {
+          "triton": 13539.959716796875,
+          "default": 1728.366978963216,
+          "dense": 4279.0313720703125
+        },
+        {
+          "triton": 13554.790242513021,
+          "dense": 4280.507914225261,
+          "default": 1728.1791687011719
+        }
+      ],
+      "complete": true
+    },
+    "128x128x4096": {
+      "default_config": [
+        64,
+        2
+      ],
+      "dense_config": [
+        16,
+        32,
+        1
+      ],
+      "triton_config": [
+        16,
+        16,
+        4,
+        8
+      ],
+      "validation": {
+        "random/9123": {
+          "default": 9.396672248840332e-05,
+          "dense": 9.396672248840332e-05,
+          "triton": 9.396672248840332e-05
+        },
+        "random/9124": {
+          "default": 9.518861770629883e-05,
+          "dense": 9.518861770629883e-05,
+          "triton": 9.518861770629883e-05
+        },
+        "early-peak/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        },
+        "late-peak/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        },
+        "large-v/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        }
+      },
+      "measurement": {
+        "warmup": 5,
+        "iterations": 30,
+        "batches": 6,
+        "seed": 9123
+      },
+      "wall": [
+        {
+          "default": 3142.8075317914286,
+          "dense": 8489.851168512056,
+          "triton": 27316.991600673646
+        },
+        {
+          "default": 3143.353965909531,
+          "triton": 27317.87603503714,
+          "dense": 8481.311398403099
+        },
+        {
+          "dense": 8478.000197404375,
+          "default": 3145.1259662086763,
+          "triton": 27297.35313526665
+        },
+        {
+          "dense": 8471.375203225762,
+          "triton": 27395.759200832497,
+          "default": 3145.0625004557273
+        },
+        {
+          "triton": 27296.31713203465,
+          "default": 3143.306798301637,
+          "dense": 8474.620000924915
+        },
+        {
+          "triton": 27382.697064119082,
+          "dense": 8472.767503311237,
+          "default": 3144.6527301644287
+        }
+      ],
+      "event": [
+        {
+          "default": 3141.5382385253906,
+          "dense": 8466.602579752604,
+          "triton": 27309.661865234375
+        },
+        {
+          "default": 3136.0254923502603,
+          "triton": 27374.318440755207,
+          "dense": 8469.435628255209
+        },
+        {
+          "dense": 8475.281270345053,
+          "default": 3140.6079610188804,
+          "triton": 27295.871988932293
+        },
+        {
+          "dense": 8467.31923421224,
+          "triton": 27286.033121744793,
+          "default": 3139.8228963216147
+        },
+        {
+          "triton": 27203.609212239582,
+          "default": 3142.229207356771,
+          "dense": 8464.981079101562
+        },
+        {
+          "triton": 27286.366780598957,
+          "dense": 8465.630086263021,
+          "default": 3141.333262125651
+        }
+      ],
+      "complete": true
+    },
+    "128x128x16384": {
+      "default_config": [
+        64,
+        2
+      ],
+      "dense_config": [
+        16,
+        32,
+        1
+      ],
+      "triton_config": [
+        16,
+        16,
+        4,
+        32
+      ],
+      "validation": {
+        "random/9123": {
+          "default": 6.899237632751465e-05,
+          "dense": 7.009506225585938e-05,
+          "triton": 6.976723670959473e-05
+        },
+        "random/9124": {
+          "default": 7.045269012451172e-05,
+          "dense": 7.089972496032715e-05,
+          "triton": 6.881356239318848e-05
+        },
+        "early-peak/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        },
+        "late-peak/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        },
+        "large-v/9123": {
+          "default": 0.0,
+          "dense": 0.0,
+          "triton": 0.0
+        }
+      },
+      "measurement": {
+        "warmup": 5,
+        "iterations": 30,
+        "batches": 6,
+        "seed": 9123
+      },
+      "wall": [
+        {
+          "default": 11669.196863658726,
+          "dense": 33594.55176784346,
+          "triton": 110841.0276977035
+        },
+        {
+          "default": 11663.883466583988,
+          "triton": 110826.13293159132,
+          "dense": 33625.59183345487
+        },
+        {
+          "dense": 33613.85109989593,
+          "default": 11667.307334331175,
+          "triton": 110677.2211031057
+        },
+        {
+          "dense": 33623.87716382121,
+          "triton": 110787.08563388015,
+          "default": 11663.814133498818
+        },
+        {
+          "triton": 110881.7112321655,
+          "default": 11662.781968091926,
+          "dense": 33654.14043267568
+        },
+        {
+          "triton": 110940.13616675511,
+          "dense": 33646.986001015954,
+          "default": 11661.962365421155
+        }
+      ],
+      "event": [
+        {
+          "default": 11663.205973307291,
+          "dense": 33630.37109375,
+          "triton": 110830.6396484375
+        },
+        {
+          "default": 11663.615926106771,
+          "triton": 110680.9326171875,
+          "dense": 33632.70060221354
+        },
+        {
+          "dense": 33698.39884440104,
+          "default": 11657.514444986979,
+          "triton": 110887.4755859375
+        },
+        {
+          "dense": 33621.700032552086,
+          "triton": 111112.36979166667,
+          "default": 11666.116333007812
+        },
+        {
+          "triton": 110804.150390625,
+          "default": 11659.059651692709,
+          "dense": 33622.70711263021
+        },
+        {
+          "triton": 110629.38639322917,
+          "dense": 33612.552897135414,
+          "default": 11661.371866861979
+        }
+      ],
+      "complete": true
+    }
+  }
+}
