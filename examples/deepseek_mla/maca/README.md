@@ -1,6 +1,6 @@
-# Optimizing dense MLA decode on MetaX C500
+# High-Performance MLA Decode Using TileLang on MetaX C500 GPUs
 
-The Hopper MLA example partitions a wide output accumulator across warpgroups. For single-token decode with a contiguous FP16 KV cache on C500, we divide the 512 output columns between waves and vary how many query heads reuse each KV tile. [Hopper implementation](../README.md#implementation)
+Building on TileLang’s MLA decode example for NVIDIA Hopper, we present an optimized implementation for MetaX C500 GPUs. We examine how the C500’s matrix instructions and shared memory capacity shape two design choices: how waves divide the output and how many query heads can share a KV tile. [Hopper implementation](../README.md#implementation)
 
 ## Architectural considerations and optimization strategies
 
@@ -18,9 +18,9 @@ The wider schedule keeps Q in a fragment. Each wave also reuses its softmax prob
 
 ## Performance evaluation
 
-The tables and figures report median full-call wall latencies on a **50% C500 slice (32000 MiB)**, including output allocation and kernel launches after compilation. The dense comparison uses a tuned [TileLang-MetaX baseline](https://github.com/tile-ai/tilelang-metax/blob/90d49f353ec88bd0d346474f143003d865dd3b79/examples/deepseek_mla/example_mla_decode.py).
+We measured full-call wall latency on a **50% C500 slice (32000 MiB)**. Each call includes output allocation and all kernel launches after compilation. The tables give median latency, and the figures show the corresponding throughput or speedup over the tuned baseline. [TileLang-MetaX baseline](https://github.com/tile-ai/tilelang-metax/blob/90d49f353ec88bd0d346474f143003d865dd3b79/examples/deepseek_mla/example_mla_decode.py).
 
-**Large batches.** At the nominal dimensions of the AMD example, the default C500 kernel achieved **1.80×–2.88×** speedup over the dense baseline using uniform FP16 sequence lengths. Native paged FlashMLA was faster at all ten shapes with its packed inputs, page table and metadata prepared before timing. Its call also returns LSE. [AMD example](../amd)
+**Large batches.** At batch sizes 64 and 128 with 128 query heads, the default C500 kernel achieved **1.80×–2.88×** speedup over the tuned dense baseline. These shapes follow the AMD example. Our inputs use FP16 and all sequences in a batch have the same KV length. [AMD example](../amd)
 
 ![Effective throughput on C500 at batch 64 and 128](../figures/flashmla-maca.png)
 
@@ -31,18 +31,18 @@ Throughput counts `2 × B × H × N × (576 + 512)` operations for the score and
 
 The dense baseline used a 16-head, 32-token tile and one split at all ten shapes after screening head tiles, key tiles and split counts.
 
-| Batch |    KV | Default head tile / splits | C500 wall (µs) | Dense baseline wall (µs) | Dense speedup | Native paged FlashMLA wall (µs) |
-| ----: | ----: | -------------------------: | --------------: | ------------------------: | ------------: | -------------------------------: |
-|    64 |  1024 |                     64 / 2 |          610.99 |                   1098.53 |        1.80× |                           351.08 |
-|    64 |  2048 |                     64 / 4 |         1033.73 |                   2150.67 |        2.08× |                           619.41 |
-|    64 |  4096 |                     64 / 4 |         1771.24 |                   4248.83 |        2.40× |                          1142.32 |
-|    64 |  8192 |                     64 / 4 |         3240.63 |                   8436.91 |        2.60× |                          2193.86 |
-|    64 | 16384 |                     64 / 4 |         6187.32 |                  16849.09 |        2.72× |                          4290.76 |
-|   128 |  1024 |                     64 / 1 |         1020.29 |                   2187.06 |        2.14× |                           622.93 |
-|   128 |  2048 |                     64 / 2 |         1735.53 |                   4285.20 |        2.47× |                          1159.60 |
-|   128 |  4096 |                     64 / 2 |         3144.87 |                   8474.82 |        2.69× |                          2208.98 |
-|   128 |  8192 |                     64 / 2 |         5985.78 |                  16862.73 |        2.82× |                          4309.13 |
-|   128 | 16384 |                     64 / 2 |        11671.82 |                  33638.07 |        2.88× |                          8504.45 |
+| Batch |    KV | Default head tile / splits | C500 wall (µs) | Dense baseline wall (µs) | Dense speedup |
+| ----: | ----: | -------------------------: | --------------: | ------------------------: | ------------: |
+|    64 |  1024 |                     64 / 2 |          610.99 |                   1098.53 |        1.80× |
+|    64 |  2048 |                     64 / 4 |         1033.73 |                   2150.67 |        2.08× |
+|    64 |  4096 |                     64 / 4 |         1771.24 |                   4248.83 |        2.40× |
+|    64 |  8192 |                     64 / 4 |         3240.63 |                   8436.91 |        2.60× |
+|    64 | 16384 |                     64 / 4 |         6187.32 |                  16849.09 |        2.72× |
+|   128 |  1024 |                     64 / 1 |         1020.29 |                   2187.06 |        2.14× |
+|   128 |  2048 |                     64 / 2 |         1735.53 |                   4285.20 |        2.47× |
+|   128 |  4096 |                     64 / 2 |         3144.87 |                   8474.82 |        2.69× |
+|   128 |  8192 |                     64 / 2 |         5985.78 |                  16862.73 |        2.82× |
+|   128 | 16384 |                     64 / 2 |        11671.82 |                  33638.07 |        2.88× |
 
 </details>
 
@@ -94,17 +94,4 @@ python benchmark_mla_decode_maca.py --kv-length 8192 --baseline-splits 128 --see
   --baseline-file "$TILELANG_METAX_ROOT/examples/deepseek_mla/example_mla_decode.py"
 ```
 
-<details>
-<summary>Native paged comparison and tuning</summary>
-
-With FlashMLA installed, the CLI can pair each baseline separately with the candidate.
-
-```bash
-python benchmark_mla_decode_maca.py --batch-size 64 --heads 128 --kv-length 1024 \
-  --baseline-file "$TILELANG_METAX_ROOT/examples/deepseek_mla/example_mla_decode.py" \
-  --baseline-splits 1 --native-flashmla --warmup 5 --iterations 30
-```
-
 Use `--tune` to screen head tiles and split counts or `--tune-splits` to fix the head tile. The CLI reports the selected schedule, reference error and event and wall samples.
-
-</details>
